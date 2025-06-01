@@ -1,7 +1,7 @@
 import { parse } from 'csv-parse';
 import fs from 'fs';
 import path from 'path';
-import { prisma } from '../src/lib/prisma';
+import prisma from '../lib/prisma';
 
 type CsvRecord = {
   LastName: string;

@@ -1,0 +1,58 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-expressions": "error",
+    "@typescript-eslint/no-this-alias": "error",
+    "@typescript-eslint/no-require-imports": "error"
+  },
+  "overrides": [
+    {
+      "files": ["src/lib/prisma.js"],
+      "rules": {
+        "@typescript-eslint/no-require-imports": "off"
+      }
+    },
+    {
+      "files": ["src/generated/**/*", "src/generated/prisma/**/*"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "node_modules",
+    ".next",
+    "dist",
+    ".prisma",
+    "prisma/client",
+    "**/generated/**",
+    "**/*.generated.*",
+    "**/runtime/**",
+    "**/wasm.js",
+    "**/react-native.js",
+    "**/index-browser.js",
+    "**/runtime.js",
+    "**/edge.js",
+    "**/edge-esm.js",
+    "**/binary.js",
+    "**/library.js",
+    "**/index.js",
+    "**/index.d.ts",
+    "**/schema.prisma",
+    "**/migrations/**",
+    "**/@prisma/**",
+    "**/prisma/**"
+  ]
+} 

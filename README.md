@@ -1,78 +1,126 @@
-# Class Action Lawsuit Member Management
+# CPT Example Project
 
-A full-stack Next.js application for managing class action lawsuit members. The application provides functionality for importing, searching, and managing member data from various sources.
+A Next.js application demonstrating member data management with PostgreSQL, Prisma, and CSV import functionality. View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app).
 
-## Features
+## 🚀 Features
 
-- Search members by last name, email, or mobile phone
-- Add new members with comprehensive information
-- Edit existing member details
-- Import member data from CSV files
-- Responsive design with modern UI
-- Data validation and error handling
+- ✨ Modern UI with Tailwind CSS
+- 📊 Member data visualization
+- 🔍 Advanced search and filtering
+- 📱 Responsive design
+- 🗃️ CSV data import functionality
+- 🔒 PostgreSQL database integration
 
-## Technologies
+## 📋 Prerequisites
 
-- **Next.js 13+** - React framework with App Router
-- **TypeScript** - Type-safe JavaScript
-- **Prisma** - Type-safe ORM for database operations
-- **SQLite** - Lightweight, file-based database
-- **TailwindCSS** - Utility-first CSS framework
-- **Zod** - TypeScript-first schema validation with static type inference
+| Requirement | Version |
+|------------|---------|
+| Node.js    | >= 18.0.0 |
+| npm        | >= 9.0.0  |
+| PostgreSQL | >= 14.0.0 |
 
-## Dependencies
+## 🛠️ Local Development Setup
 
-- `@prisma/client` - Prisma ORM client for database operations
-- `@tailwindcss/forms` - Form styling utilities for Tailwind CSS
-- `csv-parse` - CSV parsing library for data imports
-- `zod` - Schema declaration and validation
-- `typescript` - JavaScript with syntax for types
-- `tailwindcss` - A utility-first CSS framework
-- `postcss` - Tool for transforming CSS with JavaScript
-- `autoprefixer` - PostCSS plugin to parse CSS and add vendor prefixes
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/XYIAN/cpt-example.git
+   cd cpt-example
+   ```
 
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies:
+2. **Install dependencies**
    ```bash
    npm install
    ```
-3. Set up the database:
-   ```bash
-   npx prisma migrate dev
-   ```
 
-5. Import CSV data:
-   - CSV files are placed in the `data` directory:
-     - `data/Members1.csv`
-     - `data/Members2.csv`
-   - Run the import script:
-     ```bash
-     npx ts-node scripts/import-csv.ts
+3. **Set up your database**
+   - Create a free account at [Neon.tech](https://neon.tech)
+   - Create a new project and get your database connection string
+   - Create a `.env` file in the project root and add your database URL:
+     ```env
+     DATABASE_URL="your-neon-database-url-here"
      ```
 
-## Running the Application
+4. **Initialize the database**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-1. Start the development server:
+5. **Import sample data**
+   ```bash
+   npx ts-node scripts/import-csv.ts
+   ```
+
+6. **Start the development server**
    ```bash
    npm run dev
    ```
 
-## Environment Variables
+   Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-Create a `.env` file in the root directory with the following variables:
+## 📁 Project Structure
+
 ```
-DATABASE_URL="file:./dev.db"
+cpt-example/
+├── app/                  # Next.js app directory
+├── components/          # React components
+├── lib/                 # Utility functions and configurations
+├── prisma/             # Prisma schema and migrations
+├── public/             # Static assets
+├── scripts/            # Data import scripts
+└── styles/             # CSS styles
 ```
 
-## Data Import
+## 🔄 Data Import
 
-The application supports importing member data from CSV files with different structures:
-- Members1.csv: includes ProductName, DatePurchased, PaidAmount
-- Members2.csv: includes CoveredWeeks, LastStateWorked
+The application comes with two sample CSV files in the `data/` directory:
+- `Members1.csv`: Contains basic member information and purchase data
+- `Members2.csv`: Contains additional member details and coverage information
 
-## Author
+To import new data:
+1. Place your CSV files in the `data/` directory
+2. Update the import script if your CSV structure differs
+3. Run the import command:
+   ```bash
+   npx ts-node scripts/import-csv.ts
+   ```
 
-**Kyle Dilbeck**  
-GitHub: [https://github.com/xyian](https://github.com/xyian)
+## 🚀 Deployment
+
+This project is configured for deployment on Netlify:
+
+1. Push your code to GitHub
+2. Connect your repository to Netlify
+3. Add the following environment variables in Netlify:
+   - `DATABASE_URL`: Your Neon database connection string
+   - `NEXT_USE_NETLIFY_EDGE`: true
+
+## 📝 API Routes
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/members` | GET | Fetch all members with pagination |
+| `/api/members/search` | GET | Search members by name/email |
+| `/api/members/:id` | GET | Get specific member details |
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Next.js team for the amazing framework
+- Prisma team for the excellent ORM
+- Netlify for hosting
+- Neon for the serverless PostgreSQL database
+
+---
+Built with ❤️ by [Kyle Dilbeck](https://github.com/xyian)
