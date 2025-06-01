@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
 import SearchForm from '@/components/SearchForm';
 import MemberTable from '@/components/MemberTable';
 import EditMemberForm from '@/components/EditMemberForm';
@@ -143,29 +145,31 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Class Action Lawsuit Member Management</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Class Action Lawsuit Member Management</h1>
+      </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
+        <Message 
+          severity="error" 
+          text={error}
+          className="mb-4 w-full"
+        />
       )}
 
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Search Members</h2>
-          <button
-            onClick={() => {
-              setIsAddingMember(true);
-              setEditingMember(null);
-            }}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-          >
-            Add New Member
-          </button>
-        </div>
-        <SearchForm onSearch={handleSearch} />
+      <div className="mb-4 flex justify-end">
+        <Button
+          label="Add New Member"
+          icon="pi pi-plus"
+          severity="success"
+          onClick={() => {
+            setIsAddingMember(true);
+            setEditingMember(null);
+          }}
+        />
       </div>
+
+      <SearchForm onSearch={handleSearch} />
 
       {isAddingMember ? (
         <div className="mb-8">
@@ -186,19 +190,16 @@ export default function Home() {
         </div>
       ) : (
         <div>
-          <h2 className="text-xl font-semibold mb-4">
-            {members.length > 0 ? 'Members' : 'No members found'}
-          </h2>
           {members.length > 0 ? (
             <MemberTable 
               members={members} 
-              onEdit={handleEdit} 
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ) : (
-            <p className="text-gray-500 text-center py-8">
+            <div className="text-center py-8 text-gray-500">
               No members found matching your search criteria.
-            </p>
+            </div>
           )}
         </div>
       )}

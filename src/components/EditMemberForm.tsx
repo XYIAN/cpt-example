@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { formInputClasses, buttonClasses } from '../styles/theme';
+import { Card } from 'primereact/card';
+import { InputText } from 'primereact/inputtext';
+import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
+import { Calendar } from 'primereact/calendar';
+import { Button } from 'primereact/button';
 
 interface Member {
   id: number;
@@ -57,236 +61,250 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
     onSave(submissionData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-    
-    if (type === 'number') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value === '' ? null : Number(value)
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
+  const handleNumberChange = (name: string, e: InputNumberValueChangeEvent) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: e.value ?? null
+    }));
+  };
+
+  const handleDateChange = (value: Date | null) => {
+    setFormData(prev => ({
+      ...prev,
+      datePurchased: value ? value.toISOString().split('T')[0] : null
+    }));
+  };
+
+  const header = (
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-xl font-semibold m-0">Edit Member</h2>
+    </div>
+  );
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
-          <input
-            type="text"
-            name="firstName"
-            id="firstName"
-            required
-            value={formData.firstName}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+    <Card header={header}>
+      <form onSubmit={handleSubmit} className="p-fluid grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleTextChange}
+              required
+            />
+            <label htmlFor="firstName">First Name</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
-          <input
-            type="text"
-            name="lastName"
-            id="lastName"
-            required
-            value={formData.lastName}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleTextChange}
+              required
+            />
+            <label htmlFor="lastName">Last Name</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            value={formData.email || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="email"
+              name="email"
+              value={formData.email || ''}
+              onChange={handleTextChange}
+              type="email"
+            />
+            <label htmlFor="email">Email</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="mobilePhone" className="block text-sm font-medium text-gray-700">Mobile Phone</label>
-          <input
-            type="tel"
-            name="mobilePhone"
-            id="mobilePhone"
-            value={formData.mobilePhone || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="mobilePhone"
+              name="mobilePhone"
+              value={formData.mobilePhone || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="mobilePhone">Mobile Phone</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="homePhone" className="block text-sm font-medium text-gray-700">Home Phone</label>
-          <input
-            type="tel"
-            name="homePhone"
-            id="homePhone"
-            value={formData.homePhone || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="homePhone"
+              name="homePhone"
+              value={formData.homePhone || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="homePhone">Home Phone</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="address1" className="block text-sm font-medium text-gray-700">Address Line 1</label>
-          <input
-            type="text"
-            name="address1"
-            id="address1"
-            value={formData.address1 || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="address1"
+              name="address1"
+              value={formData.address1 || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="address1">Address Line 1</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="address2" className="block text-sm font-medium text-gray-700">Address Line 2</label>
-          <input
-            type="text"
-            name="address2"
-            id="address2"
-            value={formData.address2 || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="address2"
+              name="address2"
+              value={formData.address2 || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="address2">Address Line 2</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-          <input
-            type="text"
-            name="city"
-            id="city"
-            value={formData.city || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="city"
+              name="city"
+              value={formData.city || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="city">City</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
-          <input
-            type="text"
-            name="state"
-            id="state"
-            value={formData.state || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="state"
+              name="state"
+              value={formData.state || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="state">State</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="zip" className="block text-sm font-medium text-gray-700">ZIP Code</label>
-          <input
-            type="text"
-            name="zip"
-            id="zip"
-            value={formData.zip || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="zip"
+              name="zip"
+              value={formData.zip || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="zip">ZIP Code</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="zip4" className="block text-sm font-medium text-gray-700">ZIP+4</label>
-          <input
-            type="text"
-            name="zip4"
-            id="zip4"
-            value={formData.zip4 || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="zip4"
+              name="zip4"
+              value={formData.zip4 || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="zip4">ZIP+4</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="productName" className="block text-sm font-medium text-gray-700">Product Name</label>
-          <input
-            type="text"
-            name="productName"
-            id="productName"
-            value={formData.productName || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="productName"
+              name="productName"
+              value={formData.productName || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="productName">Product Name</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="datePurchased" className="block text-sm font-medium text-gray-700">Date Purchased</label>
-          <input
-            type="date"
-            name="datePurchased"
-            id="datePurchased"
-            value={formData.datePurchased || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <Calendar
+              id="datePurchased"
+              value={formData.datePurchased ? new Date(formData.datePurchased) : null}
+              onChange={(e) => handleDateChange(e.value as Date)}
+              dateFormat="yy-mm-dd"
+              showIcon
+            />
+            <label htmlFor="datePurchased">Date Purchased</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="paidAmount" className="block text-sm font-medium text-gray-700">Paid Amount</label>
-          <input
-            type="number"
-            name="paidAmount"
-            id="paidAmount"
-            step="0.01"
-            value={formData.paidAmount || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputNumber
+              id="paidAmount"
+              value={formData.paidAmount ?? undefined}
+              onValueChange={(e) => handleNumberChange('paidAmount', e)}
+              mode="currency"
+              currency="USD"
+              locale="en-US"
+              minFractionDigits={2}
+            />
+            <label htmlFor="paidAmount">Paid Amount</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="coveredWeeks" className="block text-sm font-medium text-gray-700">Covered Weeks</label>
-          <input
-            type="number"
-            name="coveredWeeks"
-            id="coveredWeeks"
-            value={formData.coveredWeeks || ''}
-            onChange={handleChange}
-            className={formInputClasses}
-          />
+        <div className="field">
+          <span className="p-float-label">
+            <InputNumber
+              id="coveredWeeks"
+              value={formData.coveredWeeks ?? undefined}
+              onValueChange={(e) => handleNumberChange('coveredWeeks', e)}
+            />
+            <label htmlFor="coveredWeeks">Covered Weeks</label>
+          </span>
         </div>
 
-        <div>
-          <label htmlFor="lastStateWorked" className="block text-sm font-medium text-gray-700">Last State Worked</label>
-          <input
-            type="text"
-            name="lastStateWorked"
-            id="lastStateWorked"
-            value={formData.lastStateWorked || ''}
-            onChange={handleChange}
-            className={formInputClasses}
+        <div className="field">
+          <span className="p-float-label">
+            <InputText
+              id="lastStateWorked"
+              name="lastStateWorked"
+              value={formData.lastStateWorked || ''}
+              onChange={handleTextChange}
+            />
+            <label htmlFor="lastStateWorked">Last State Worked</label>
+          </span>
+        </div>
+
+        <div className="col-span-2 flex justify-end gap-2 mt-4">
+          <Button
+            type="button"
+            label="Cancel"
+            severity="secondary"
+            outlined
+            onClick={onCancel}
+          />
+          <Button
+            type="submit"
+            label="Save Changes"
+            severity="success"
           />
         </div>
-      </div>
-
-      <div className="flex justify-end space-x-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          className={buttonClasses.secondary}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className={buttonClasses.primary}
-        >
-          Save Changes
-        </button>
-      </div>
-    </form>
+      </form>
+    </Card>
   );
 } 
