@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Message } from 'primereact/message';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import SearchForm from '@/components/SearchForm';
 import MemberTable from '@/components/MemberTable';
 import EditMemberForm from '@/components/EditMemberForm';
@@ -33,6 +34,7 @@ export default function Home() {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   // Load all members when the component mounts
@@ -41,6 +43,7 @@ export default function Home() {
   }, []);
 
   const fetchMembers = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/members');
       if (!response.ok) throw new Error('Failed to fetch members');
@@ -51,6 +54,8 @@ export default function Home() {
       console.error('Error fetching members:', error);
       setError('Failed to fetch members. Please try again.');
       toast.showError('Failed to fetch members', 'Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,6 +75,7 @@ export default function Home() {
     paidAmountMax?: number;
     hasCoveredWeeks?: boolean;
   }) => {
+    setIsLoading(true);
     try {
       const queryParams = new URLSearchParams();
       
@@ -95,6 +101,8 @@ export default function Home() {
       console.error('Error searching members:', error);
       setError('Failed to search members. Please try again.');
       toast.showError('Search Failed', 'Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -219,7 +227,17 @@ export default function Home() {
         </div>
       ) : (
         <div>
-          {members.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <ProgressSpinner 
+                style={{width: '50px', height: '50px'}} 
+                strokeWidth="4" 
+                fill="var(--surface-ground)" 
+                animationDuration=".5s"
+                aria-label="Loading Members"
+              />
+            </div>
+          ) : members.length > 0 ? (
             <MemberTable 
               members={members} 
               onEdit={handleEdit}
