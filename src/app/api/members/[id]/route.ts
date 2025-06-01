@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import { z } from 'zod';
-import { Prisma } from '@prisma/client';
+import type { Member } from '@prisma/client';
 
 const MemberInput = z.object({
   firstName: z.string(),
-  lastName: z.string(),
+  lastName: z.string().optional().nullable(),
   email: z.string().optional().nullable(),
   homePhone: z.string().optional().nullable(),
   mobilePhone: z.string().optional().nullable(),
@@ -20,19 +20,21 @@ const MemberInput = z.object({
   paidAmount: z.number().optional().nullable(),
   coveredWeeks: z.number().optional().nullable(),
   lastStateWorked: z.string().optional().nullable(),
-  version: z.number(), // Required for optimistic locking
+  version: z.number(), // Required for version control
+  isLocked: z.boolean().optional(), // Optional as it's managed by the server
+  lastModifiedBy: z.string().optional().nullable() // Optional user tracking
 });
 
 export async function PUT(request: Request) {
   try {
     const id = parseInt(request.url.split('/').pop() || '');
     const body = await request.json();
+    console.log('Received data:', body);
     const validatedData = MemberInput.parse(body);
 
     // First, check if the record is locked
     const currentMember = await prisma.member.findUnique({
-      where: { id },
-      select: { version: true, isLocked: true }
+      where: { id }
     });
 
     if (!currentMember) {
@@ -42,65 +44,60 @@ export async function PUT(request: Request) {
       );
     }
 
+    console.log('Current member from DB:', currentMember);
+    console.log('Validated data:', validatedData);
+
     if (currentMember.isLocked) {
       return NextResponse.json(
-        { error: 'Member record is currently locked by another user' },
+        { error: 'Record is locked for editing' },
         { status: 409 }
       );
     }
 
     // Check version for optimistic locking
     if (currentMember.version !== validatedData.version) {
+      console.log('Version mismatch:', { 
+        current: currentMember.version, 
+        received: validatedData.version 
+      });
       return NextResponse.json(
         { 
-          error: 'Record has been modified by another user',
-          currentVersion: currentMember.version,
-          yourVersion: validatedData.version
+          error: 'Version conflict', 
+          currentVersion: currentMember.version 
         },
         { status: 409 }
       );
     }
 
-    // Lock the record
-    await prisma.member.update({
+    // Prepare update data
+    const updateData: Partial<Member> = {
+      firstName: validatedData.firstName,
+      lastName: validatedData.lastName,
+      email: validatedData.email,
+      homePhone: validatedData.homePhone,
+      mobilePhone: validatedData.mobilePhone,
+      address1: validatedData.address1,
+      address2: validatedData.address2,
+      city: validatedData.city,
+      state: validatedData.state,
+      zip: validatedData.zip,
+      zip4: validatedData.zip4,
+      productName: validatedData.productName,
+      datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
+      paidAmount: validatedData.paidAmount,
+      coveredWeeks: validatedData.coveredWeeks,
+      lastStateWorked: validatedData.lastStateWorked,
+      version: currentMember.version + 1,
+      lastModifiedBy: validatedData.lastModifiedBy
+    };
+
+    // Update the member with incremented version
+    const updatedMember = await prisma.member.update({
       where: { id },
-      data: { isLocked: true }
+      data: updateData
     });
 
-    try {
-      // Perform the update with version increment
-      const member = await prisma.member.update({
-        where: { 
-          id,
-          version: validatedData.version // Extra check to ensure version hasn't changed
-        },
-        data: {
-          ...validatedData,
-          datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
-          version: { increment: 1 }, // Increment version
-          isLocked: false // Release the lock
-        },
-      });
-
-      return NextResponse.json(member);
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          // Record was modified while we held the lock
-          return NextResponse.json(
-            { error: 'Record was modified by another user during update' },
-            { status: 409 }
-          );
-        }
-      }
-      throw error;
-    } finally {
-      // Always release the lock in case of error
-      await prisma.member.update({
-        where: { id },
-        data: { isLocked: false }
-      }).catch(console.error); // Log but don't throw if unlock fails
-    }
+    return NextResponse.json(updatedMember);
   } catch (error) {
     console.error('Error updating member:', error);
     return NextResponse.json(
@@ -114,7 +111,7 @@ export async function GET(request: Request) {
   try {
     const id = parseInt(request.url.split('/').pop() || '');
     const member = await prisma.member.findUnique({
-      where: { id },
+      where: { id }
     });
 
     if (!member) {
@@ -124,6 +121,7 @@ export async function GET(request: Request) {
       );
     }
 
+    console.log('Fetched member:', member);
     return NextResponse.json(member);
   } catch (error) {
     console.error('Error fetching member:', error);
@@ -138,10 +136,9 @@ export async function DELETE(request: Request) {
   try {
     const id = parseInt(request.url.split('/').pop() || '');
     
-    // Check if the record is locked
+    // Check if the record exists and is not locked
     const member = await prisma.member.findUnique({
-      where: { id },
-      select: { isLocked: true }
+      where: { id }
     });
 
     if (!member) {
@@ -153,13 +150,13 @@ export async function DELETE(request: Request) {
 
     if (member.isLocked) {
       return NextResponse.json(
-        { error: 'Member record is currently locked by another user' },
+        { error: 'Record is locked and cannot be deleted' },
         { status: 409 }
       );
     }
 
     await prisma.member.delete({
-      where: { id },
+      where: { id }
     });
 
     return NextResponse.json({ success: true });

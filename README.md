@@ -1,33 +1,24 @@
-# CPT Example Project
+# CPT Group - Member Management System
 
-A modern, full-stack Next.js application showcasing best practices in web development through a member management system. Built with scalability and user experience in mind, this application demonstrates efficient CRUD operations, responsive design, and seamless data handling.
+A modern, full-stack Next.js application for managing class action lawsuit member data. Built with scalability, concurrent access control, and user experience in mind, this application demonstrates efficient CRUD operations, responsive design, and real-time collaboration features.
 
-## 💫 Overview
+## 💫 Live Demo
 
-This project serves as a practical example of:
-
-- **Robust Data Management**: Full CRUD operations with real-time updates and optimistic UI
-- **Modern Architecture**: Server-side rendering with Next.js 13+ App Router
-- **Scalable Database**: PostgreSQL integration via Neon's serverless platform
-- **Type Safety**: End-to-end type safety with TypeScript and Prisma ORM
-- **Responsive Design**: Mobile-first approach using Tailwind CSS and modern UI components
-- **Data Import**: Efficient bulk data handling through CSV import functionality
-
-View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
+Visit the live application at [https://cptapp.netlify.app](https://cptapp.netlify.app)
 
 ## 🎯 Key Features
 
 - ✨ **Intuitive Interface**
   - Clean, modern UI with responsive design
-  - Dark/light mode support
-  - Accessible components following WCAG guidelines
   - Interactive data tables with sorting and filtering
+  - Real-time feedback and loading states
+  - Toast notifications for user actions
 
 - 🔍 **Advanced Search Capabilities**
-  - Real-time search with debouncing
-  - Multiple filter combinations
-  - Sortable columns
-  - Pagination for large datasets
+  - Multi-field search functionality
+  - Filter by name, contact info, or location
+  - Instant search results
+  - Clear error handling and feedback
 
 - 📊 **Data Management**
   - Create, read, update, and delete member records
@@ -35,17 +26,18 @@ View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
   - Data validation and error handling
   - Optimistic updates for better UX
 
-- 🏗️ **Scalable Architecture**
-  - Serverless PostgreSQL database
-  - Connection pooling for optimal performance
-  - API rate limiting
-  - Efficient caching strategies
+- 🔒 **Concurrent Access Control**
+  - Version control for member records
+  - Optimistic locking to prevent data conflicts
+  - Record-level locking for concurrent edits
+  - Automatic conflict resolution
+  - User tracking for modifications
 
 ## 🚀 Technical Stack
 
 - **Frontend**
   - Next.js 13+ with App Router
-  - React Server Components
+  - React (Client Components)
   - TailwindCSS for styling
   - TypeScript for type safety
   - PrimeReact UI components
@@ -53,16 +45,8 @@ View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
 - **Backend**
   - Next.js API Routes
   - Prisma ORM
-  - PostgreSQL (Neon)
-  - CSV parsing and validation
+  - PostgreSQL
   - Zod schema validation
-
-- **Infrastructure**
-  - Netlify Edge Functions
-  - Serverless PostgreSQL
-  - Connection pooling
-  - GitHub Actions CI/CD
-  - Environment variable management
 
 ## 📋 Prerequisites
 
@@ -85,12 +69,10 @@ View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
    npm install
    ```
 
-3. **Set up your database**
-   - Create a free account at [Neon.tech](https://neon.tech)
-   - Create a new project and get your database connection string
-   - Create a `.env` file in the project root and add your database URL:
+3. **Set up your environment**
+   - Create a `.env` file in the project root:
      ```env
-     DATABASE_URL="your-neon-database-url-here"
+     DATABASE_URL="your-postgresql-url"
      ```
 
 4. **Initialize the database**
@@ -101,7 +83,7 @@ View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
 
 5. **Import sample data**
    ```bash
-   npx ts-node scripts/import-csv.ts
+   npx tsx scripts/import-csv.ts
    ```
 
 6. **Start the development server**
@@ -115,46 +97,297 @@ View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
 
 ```
 cpt-example/
-├── app/                  # Next.js app directory
-├── components/          # React components
-├── lib/                 # Utility functions and configurations
-├── prisma/             # Prisma schema and migrations
-├── public/             # Static assets
-├── scripts/            # Data import scripts
-└── styles/             # CSS styles
+├── src/
+│   ├── app/              # Next.js app directory and API routes
+│   ├── components/       # React components
+│   ├── contexts/         # React contexts (Toast, etc.)
+│   ├── lib/             # Utility functions and Prisma client
+│   └── types/           # TypeScript type definitions
+├── prisma/              # Prisma schema and migrations
+├── data/               # CSV data files
+└── scripts/            # Data import scripts
 ```
 
 ## 🔄 Data Import
 
-The application comes with two sample CSV files in the `data/` directory:
-- `Members1.csv`: Contains basic member information and purchase data
-- `Members2.csv`: Contains additional member details and coverage information
+The application uses two CSV files for member data:
+- `Members1.csv`: Basic member info and purchase data
+- `Members2.csv`: Additional member details and coverage info
 
-To import new data:
-1. Place your CSV files in the `data/` directory
-2. Update the import script if your CSV structure differs
-3. Run the import command:
+To import data:
+1. Ensure your CSV files are in the `data/` directory
+2. Run the import script:
    ```bash
-   npx ts-node scripts/import-csv.ts
+   npx tsx scripts/import-csv.ts
    ```
-
-## 🚀 Deployment
-
-This project is configured for deployment on Netlify:
-
-1. Push your code to GitHub
-2. Connect your repository to Netlify
-3. Add the following environment variables in Netlify:
-   - `DATABASE_URL`: Your Neon database connection string
-   - `NEXT_USE_NETLIFY_EDGE`: true
 
 ## 📝 API Routes
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/members` | GET | Fetch all members with pagination |
-| `/api/members/search` | GET | Search members by name/email |
-| `/api/members/:id` | GET | Get specific member details |
+| `/api/members` | GET | Fetch all members |
+| `/api/members` | POST | Create new member |
+| `/api/members/:id` | GET | Get member details |
+| `/api/members/:id` | PUT | Update member (with version control) |
+| `/api/members/:id` | DELETE | Delete member |
+
+## 🔒 Version Control
+
+The system implements optimistic locking and record-level locking:
+
+- Each record has a version number that increments on updates
+- Records can be locked for exclusive access
+- Version conflicts are detected and handled gracefully
+- Users are notified of concurrent edit attempts
+- Modification history is tracked with user information
+
+## 👥 Multi-User Handling & Concurrency
+
+The application implements a robust system to handle multiple users accessing and modifying data simultaneously:
+
+### Conflict Prevention
+- **Optimistic Locking**
+  - Each member record maintains a version number
+  - Version is automatically incremented on each update
+  - Updates check if version matches before applying changes
+  - Prevents unintended overwrites of concurrent modifications
+
+- **Record-Level Locking**
+  - Records are locked when a user starts editing
+  - Other users are prevented from editing locked records
+  - Locks automatically expire after inactivity
+  - Lock status is visible in the UI
+
+### Real-Time Feedback
+- **Version Conflict Detection**
+  - Immediate notification when version mismatch occurs
+  - Clear explanation of the conflict situation
+  - Option to refresh and get latest version
+  - Prevents data loss from concurrent edits
+
+- **Lock Status Indicators**
+  - Visual indicators for locked records
+  - Shows which records are being edited
+  - Displays lock holder information
+  - Automatic UI updates when lock status changes
+
+### Error Handling
+- **Conflict Resolution**
+  - Automatic detection of stale data
+  - User-friendly conflict resolution workflow
+  - Option to merge changes or override
+  - Preservation of audit trail
+
+- **Edge Cases**
+  - Handles network disconnections gracefully
+  - Automatic lock release on session timeout
+  - Recovery from interrupted operations
+  - Consistent state maintenance
+
+### User Experience
+- **Notifications**
+  - Toast messages for operation status
+  - Clear feedback on action success/failure
+  - Informative error messages
+  - Guidance for conflict resolution
+
+- **UI State Management**
+  - Loading indicators during operations
+  - Disabled controls for locked records
+  - Clear visual feedback
+  - Responsive interface updates
+
+### Data Integrity
+- **Audit Trail**
+  - Tracks all modifications
+  - Records user information
+  - Timestamps for all changes
+  - Version history maintenance
+
+- **Validation**
+  - Server-side data validation
+  - Type checking with Zod
+  - Required field enforcement
+  - Data format verification
+
+### Implementation Details
+- **Database Level**
+  ```sql
+  -- Member table includes:
+  version         INT       -- For optimistic locking
+  isLocked       BOOLEAN   -- Current lock status
+  lastModifiedBy STRING    -- User tracking
+  updatedAt      DATETIME  -- Modification timestamp
+  ```
+
+- **API Layer**
+  ```typescript
+  // Update endpoint includes:
+  if (existingMember.version !== requestVersion) {
+    throw new VersionConflictError();
+  }
+  if (existingMember.isLocked) {
+    throw new RecordLockedError();
+  }
+  ```
+
+- **Client Side**
+  ```typescript
+  // Edit workflow:
+  1. Check lock status
+  2. Acquire lock
+  3. Load current version
+  4. Make changes
+  5. Submit with version
+  6. Handle any conflicts
+  7. Release lock
+  ```
+
+## 📊 Data Schema & Type System
+
+The application implements a layered type system to ensure data consistency from database to client:
+
+### Database Schema (Prisma)
+```prisma
+model Member {
+  // Primary Key
+  id            Int      @id @default(autoincrement())
+
+  // Basic Information
+  firstName     String
+  lastName      String
+  email         String?
+  
+  // Contact Details
+  homePhone     String?
+  mobilePhone   String?
+  
+  // Address Information
+  address1      String?
+  address2      String?
+  city          String?
+  state         String?
+  zip           String?
+  zip4          String?
+  
+  // Product Information
+  productName   String?    // From Members1.csv
+  datePurchased DateTime?  // From Members1.csv
+  paidAmount    Float?     // From Members1.csv
+  
+  // Coverage Information
+  coveredWeeks   Float?    // From Members2.csv
+  lastStateWorked String?  // From Members2.csv
+  
+  // Version Control & Concurrency
+  version        Int      @default(1)
+  isLocked       Boolean  @default(false)
+  lastModifiedBy String?
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Indexes for Performance
+  @@index([lastName])
+  @@index([email])
+  @@index([mobilePhone])
+}
+```
+
+### API Validation (Zod)
+
+#### Create Member Schema
+```typescript
+const MemberInput = z.object({
+  // Required Fields
+  firstName: z.string(),
+  lastName: z.string(),
+  
+  // Optional Contact Info
+  email: z.string().optional().nullable(),
+  homePhone: z.string().optional().nullable(),
+  mobilePhone: z.string().optional().nullable(),
+  
+  // Optional Address
+  address1: z.string().optional().nullable(),
+  address2: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  state: z.string().optional().nullable(),
+  zip: z.string().optional().nullable(),
+  zip4: z.string().optional().nullable(),
+  
+  // Optional Product Info
+  productName: z.string().optional().nullable(),
+  datePurchased: z.string().optional().nullable(),
+  paidAmount: z.number().optional().nullable(),
+  
+  // Optional Coverage Info
+  coveredWeeks: z.number().optional().nullable(),
+  lastStateWorked: z.string().optional().nullable()
+});
+```
+
+#### Update Member Schema
+```typescript
+const MemberUpdateInput = MemberInput.extend({
+  // Version Control Fields
+  version: z.number(),
+  isLocked: z.boolean().optional(),
+  lastModifiedBy: z.string().optional().nullable()
+});
+```
+
+### Type System Layers
+
+| Layer | Technology | Purpose | Example |
+|-------|------------|---------|---------|
+| Database | Prisma Schema | Define database structure | `model Member { ... }` |
+| ORM | Prisma Client | Type-safe database queries | `prisma.member.findUnique()` |
+| Validation | Zod | Runtime data validation | `MemberInput.parse(data)` |
+| API | TypeScript | Type definitions for API | `type Member = { ... }` |
+| Client | TypeScript | Frontend type safety | `const [member, setMember] = useState<Member>()` |
+
+### Data Flow & Validation
+
+```mermaid
+graph TD
+    A[Client Form Data] --> B[Zod Validation]
+    B --> C[API Endpoint]
+    C --> D[Prisma Schema]
+    D --> E[PostgreSQL]
+    E --> F[Prisma Result]
+    F --> G[API Response]
+    G --> H[Client State]
+```
+
+### Type Safety Features
+
+1. **Database Level**
+   - Strong field types
+   - Required vs optional fields
+   - Default values
+   - Indexes for performance
+   - Foreign key constraints
+
+2. **API Level**
+   - Input validation
+   - Runtime type checking
+   - Error handling
+   - Data transformation
+
+3. **Client Level**
+   - Form validation
+   - Type inference
+   - Compile-time checks
+   - Auto-completion
+
+This layered approach ensures:
+- Data consistency across the stack
+- Runtime safety with validation
+- Compile-time type checking
+- Clear error messages
+- Maintainable codebase
 
 ## 🤝 Contributing
 
@@ -167,13 +400,6 @@ This project is configured for deployment on Netlify:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Next.js team for the amazing framework
-- Prisma team for the excellent ORM
-- Netlify for hosting
-- Neon for the serverless PostgreSQL database
 
 ---
 Built with ❤️ by [Kyle Dilbeck](https://github.com/xyian)

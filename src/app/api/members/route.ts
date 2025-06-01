@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { z } from 'zod';
 
+// Schema for creating new members (without version control fields)
 const MemberInput = z.object({
   firstName: z.string(),
-  lastName: z.string(),
+  lastName: z.string().optional().nullable(),
   email: z.string().optional().nullable(),
   homePhone: z.string().optional().nullable(),
   mobilePhone: z.string().optional().nullable(),
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
       data: {
         ...validatedData,
         datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
-        // Version control fields are handled by default values in schema
+        // Version control fields are handled by schema defaults
       },
     });
     return NextResponse.json(member);

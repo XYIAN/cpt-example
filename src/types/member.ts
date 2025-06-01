@@ -1,7 +1,7 @@
 export interface Member {
   id: number;
   firstName: string;
-  lastName: string;
+  lastName: string | null;
   email: string | null;
   homePhone: string | null;
   mobilePhone: string | null;

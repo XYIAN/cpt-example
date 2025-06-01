@@ -104,6 +104,7 @@ export default function Home() {
 
   const handleSave = async (updatedMember: Member) => {
     try {
+      console.log('Sending to API:', updatedMember);
       const response = await fetch(`/api/members/${updatedMember.id}`, {
         method: 'PUT',
         headers: {
@@ -114,6 +115,7 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.log('API error response:', errorData);
         
         if (response.status === 409) {
           if ('currentVersion' in errorData) {
@@ -148,7 +150,7 @@ export default function Home() {
     }
   };
 
-  const handleAdd = async (newMember: Omit<Member, 'id' | 'version' | 'isLocked' | 'lastModifiedBy' | 'createdAt' | 'updatedAt'>) => {
+  const handleAdd = async (newMember: Omit<Member, 'id' | 'isLocked' | 'lastModifiedBy' | 'createdAt' | 'updatedAt'>) => {
     try {
       const response = await fetch('/api/members', {
         method: 'POST',
@@ -224,22 +226,26 @@ export default function Home() {
         <div className="flex justify-center items-center p-8">
           <ProgressSpinner />
         </div>
-      ) : editingMember ? (
-        <EditMemberForm
-          member={editingMember}
-          onSave={handleSave}
-          onCancel={() => setEditingMember(null)}
-        />
-      ) : isAddingMember ? (
-        <AddMemberForm
-          onSubmit={handleAdd}
-          onCancel={() => setIsAddingMember(false)}
-        />
       ) : (
         <MemberTable
           members={members}
           onEdit={handleEdit}
           onDelete={handleDelete}
+        />
+      )}
+
+      <AddMemberForm
+        onSubmit={handleAdd}
+        onCancel={() => setIsAddingMember(false)}
+        visible={isAddingMember}
+      />
+
+      {editingMember && (
+        <EditMemberForm
+          member={editingMember}
+          onSave={handleSave}
+          onCancel={() => setEditingMember(null)}
+          visible={!!editingMember}
         />
       )}
 

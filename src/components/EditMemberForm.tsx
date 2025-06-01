@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { Card } from 'primereact/card';
+import { useState, FormEvent, useEffect } from 'react';
+import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { Calendar } from 'primereact/calendar';
@@ -12,39 +12,101 @@ interface EditMemberFormProps {
   member: Member;
   onSave: (member: Member) => void;
   onCancel: () => void;
+  visible: boolean;
 }
 
-export default function EditMemberForm({ member, onSave, onCancel }: EditMemberFormProps) {
+export default function EditMemberForm({ member, onSave, onCancel, visible }: EditMemberFormProps) {
+  console.log('Member prop received:', member);
+  
   const [formData, setFormData] = useState<Member>({
-    ...member,
-    email: member.email || '',
-    homePhone: member.homePhone || '',
-    mobilePhone: member.mobilePhone || '',
-    address1: member.address1 || '',
-    address2: member.address2 || '',
-    city: member.city || '',
-    state: member.state || '',
-    zip: member.zip || '',
-    zip4: member.zip4 || '',
-    productName: member.productName || '',
-    datePurchased: member.datePurchased || '',
-    lastStateWorked: member.lastStateWorked || '',
-    // Preserve version control fields
+    firstName: member.firstName,
+    lastName: member.lastName,
+    email: member.email ?? '',
+    homePhone: member.homePhone ?? '',
+    mobilePhone: member.mobilePhone ?? '',
+    address1: member.address1 ?? '',
+    address2: member.address2 ?? '',
+    city: member.city ?? '',
+    state: member.state ?? '',
+    zip: member.zip ?? '',
+    zip4: member.zip4 ?? '',
+    productName: member.productName ?? '',
+    datePurchased: member.datePurchased ?? '',
+    paidAmount: member.paidAmount,
+    coveredWeeks: member.coveredWeeks,
+    lastStateWorked: member.lastStateWorked ?? '',
+    // System fields
+    id: member.id,
     version: member.version,
-    lastModifiedBy: member.lastModifiedBy,
     isLocked: member.isLocked,
+    lastModifiedBy: member.lastModifiedBy,
     createdAt: member.createdAt,
     updatedAt: member.updatedAt
   });
 
+  console.log('Initial form data:', formData);
+
+  // Add effect to update form data when member changes
+  useEffect(() => {
+    setFormData({
+      firstName: member.firstName,
+      lastName: member.lastName,
+      email: member.email ?? '',
+      homePhone: member.homePhone ?? '',
+      mobilePhone: member.mobilePhone ?? '',
+      address1: member.address1 ?? '',
+      address2: member.address2 ?? '',
+      city: member.city ?? '',
+      state: member.state ?? '',
+      zip: member.zip ?? '',
+      zip4: member.zip4 ?? '',
+      productName: member.productName ?? '',
+      datePurchased: member.datePurchased ?? '',
+      paidAmount: member.paidAmount,
+      coveredWeeks: member.coveredWeeks,
+      lastStateWorked: member.lastStateWorked ?? '',
+      // System fields
+      id: member.id,
+      version: member.version,
+      isLocked: member.isLocked,
+      lastModifiedBy: member.lastModifiedBy,
+      createdAt: member.createdAt,
+      updatedAt: member.updatedAt
+    });
+  }, [member]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Convert empty strings back to null before saving
-    const submissionData = Object.entries(formData).reduce<Partial<Member>>((acc, [key, value]) => {
-      const typedKey = key as keyof Member;
-      acc[typedKey] = value === '' ? null : value;
-      return acc;
-    }, {}) as Member;
+
+    const submissionData: Member = {
+      id: member.id,
+      version: member.version,
+      isLocked: member.isLocked,
+      lastModifiedBy: member.lastModifiedBy,
+      createdAt: member.createdAt,
+      updatedAt: member.updatedAt,
+      firstName: formData.firstName,
+      lastName: formData.lastName || null,
+      email: formData.email || null,
+      homePhone: formData.homePhone || null,
+      mobilePhone: formData.mobilePhone || null,
+      address1: formData.address1 || null,
+      address2: formData.address2 || null,
+      city: formData.city || null,
+      state: formData.state || null,
+      zip: formData.zip || null,
+      zip4: formData.zip4 || null,
+      productName: formData.productName || null,
+      datePurchased: formData.datePurchased || null,
+      paidAmount: formData.paidAmount || null,
+      coveredWeeks: formData.coveredWeeks || null,
+      lastStateWorked: formData.lastStateWorked || null
+    };
+
+    console.log('Original member:', member);
+    console.log('Form data:', formData);
+    console.log('Submission data:', submissionData);
+
     onSave(submissionData);
   };
 
@@ -52,7 +114,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value || null
     }));
   };
 
@@ -70,15 +132,24 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
     }));
   };
 
-  const header = (
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-semibold m-0">Edit Member</h2>
+  const footerContent = (
+    <div>
+      <Button label="Cancel" icon="pi pi-times" onClick={onCancel} className="p-button-text" />
+      <Button label="Save" icon="pi pi-check" onClick={handleSubmit} autoFocus />
     </div>
   );
 
   return (
-    <Card header={header}>
-      <form onSubmit={handleSubmit} className="p-fluid grid grid-cols-1 md:grid-cols-2 gap-4">
+    <Dialog
+      header="Edit Member"
+      visible={visible}
+      style={{ width: '90vw', maxWidth: '800px' }}
+      onHide={onCancel}
+      footer={footerContent}
+      modal
+      className="p-fluid"
+    >
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
         <div className="field">
           <span className="p-float-label">
             <InputText
@@ -97,9 +168,8 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             <InputText
               id="lastName"
               name="lastName"
-              value={formData.lastName}
+              value={formData.lastName || ''}
               onChange={handleTextChange}
-              required
             />
             <label htmlFor="lastName">Last Name</label>
           </span>
@@ -231,7 +301,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             <Calendar
               id="datePurchased"
               value={formData.datePurchased ? new Date(formData.datePurchased) : null}
-              onChange={(e) => handleDateChange(e.value as Date)}
+              onChange={(e) => handleDateChange(e.value as Date | null)}
               dateFormat="yy-mm-dd"
             />
             <label htmlFor="datePurchased">Date Purchased</label>
@@ -242,11 +312,11 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
           <span className="p-float-label">
             <InputNumber
               id="paidAmount"
-              value={formData.paidAmount ?? undefined}
+              value={formData.paidAmount || null}
               onValueChange={(e) => handleNumberChange('paidAmount', e)}
-              mode="currency"
-              currency="USD"
-              locale="en-US"
+              mode="decimal"
+              minFractionDigits={2}
+              maxFractionDigits={2}
             />
             <label htmlFor="paidAmount">Paid Amount</label>
           </span>
@@ -256,7 +326,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
           <span className="p-float-label">
             <InputNumber
               id="coveredWeeks"
-              value={formData.coveredWeeks ?? undefined}
+              value={formData.coveredWeeks || null}
               onValueChange={(e) => handleNumberChange('coveredWeeks', e)}
             />
             <label htmlFor="coveredWeeks">Covered Weeks</label>
@@ -274,22 +344,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             <label htmlFor="lastStateWorked">Last State Worked</label>
           </span>
         </div>
-
-        <div className="col-span-2 flex justify-end gap-2 mt-4">
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            outlined
-            onClick={onCancel}
-          />
-          <Button
-            type="submit"
-            label="Save Changes"
-            severity="success"
-          />
-        </div>
       </form>
-    </Card>
+    </Dialog>
   );
 } 
