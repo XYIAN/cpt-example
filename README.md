@@ -1,149 +1,126 @@
-# Class Action Lawsuit Member Management
+# CPT Example Project
 
-A full-stack Next.js application for managing class action lawsuit members. The application provides functionality for importing, searching, and managing member data from various sources.
+A Next.js application demonstrating member data management with PostgreSQL, Prisma, and CSV import functionality. View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app).
 
-## Features
+## 🚀 Features
 
-- Search members by last name, email, or mobile phone
-- Add new members with comprehensive information
-- Edit existing member details
-- Import member data from CSV files
-- Responsive design with modern UI
-- Data validation and error handling
+- ✨ Modern UI with Tailwind CSS
+- 📊 Member data visualization
+- 🔍 Advanced search and filtering
+- 📱 Responsive design
+- 🗃️ CSV data import functionality
+- 🔒 PostgreSQL database integration
 
-## Technologies
+## 📋 Prerequisites
 
-- **Next.js 13+** - React framework with App Router
-- **TypeScript** - Type-safe JavaScript
-- **Prisma** - Type-safe ORM for database operations
-- **SQLite** - Lightweight, file-based database
-- **TailwindCSS** - Utility-first CSS framework
-- **Zod** - TypeScript-first schema validation with static type inference
-- **PrimeReact** - UI Component Library
+| Requirement | Version |
+|------------|---------|
+| Node.js    | >= 18.0.0 |
+| npm        | >= 9.0.0  |
+| PostgreSQL | >= 14.0.0 |
 
-## Prerequisites
+## 🛠️ Local Development Setup
 
-- Node.js 18+ and npm
-- Git
-
-## Getting Started
-
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd class-action-lawsuit-manager
+   git clone https://github.com/XYIAN/cpt-example.git
+   cd cpt-example
    ```
 
-2. Install dependencies:
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. Set up environment variables:
-   ```bash
-   # Create a .env file in the root directory
-   echo 'DATABASE_URL="file:./prisma/dev.db"' > .env
-   ```
-
-4. Set up the database and generate Prisma client:
-   ```bash
-   # Generate Prisma Client
-   npx prisma generate
-
-   # Create database and run migrations
-   npx prisma migrate dev
-
-   # (Optional) Open Prisma Studio to view/edit data
-   npx prisma studio
-   ```
-
-5. Import sample data (if available):
-   - Ensure CSV files are placed in the `data` directory:
-     - `data/Members1.csv`
-     - `data/Members2.csv`
-   - Run the import script:
-     ```bash
-     # Run with ts-node and ESM support
-     NODE_OPTIONS='--loader ts-node/esm' npx ts-node --esm scripts/import-csv.ts
+3. **Set up your database**
+   - Create a free account at [Neon.tech](https://neon.tech)
+   - Create a new project and get your database connection string
+   - Create a `.env` file in the project root and add your database URL:
+     ```env
+     DATABASE_URL="your-neon-database-url-here"
      ```
 
-## Running the Application
+4. **Initialize the database**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-1. Start the development server:
+5. **Import sample data**
+   ```bash
+   npx ts-node scripts/import-csv.ts
+   ```
+
+6. **Start the development server**
    ```bash
    npm run dev
    ```
 
-2. Open [http://localhost:3000](http://localhost:3000) in your browser
+   Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-## Development Tools
-
-- **Prisma Studio**: Access the database GUI
-  ```bash
-  npx prisma studio
-  ```
-  This will open a browser window at [http://localhost:5555](http://localhost:5555)
-
-- **Type Generation**: After making changes to the Prisma schema
-  ```bash
-  npx prisma generate
-  ```
-
-- **Database Migrations**: After modifying the schema
-  ```bash
-  npx prisma migrate dev --name <migration-name>
-  ```
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-├── data/                  # CSV data files
-├── prisma/               
-│   ├── schema.prisma     # Database schema
-│   └── migrations/       # Database migrations
-├── scripts/
-│   └── import-csv.ts     # Data import script
-├── src/
-│   ├── app/             # Next.js app router pages
-│   ├── components/      # React components
-│   ├── contexts/        # React contexts
-│   └── lib/            # Utility functions and shared code
+cpt-example/
+├── app/                  # Next.js app directory
+├── components/          # React components
+├── lib/                 # Utility functions and configurations
+├── prisma/             # Prisma schema and migrations
+├── public/             # Static assets
+├── scripts/            # Data import scripts
+└── styles/             # CSS styles
 ```
 
-## Data Import Format
+## 🔄 Data Import
 
-The application supports importing member data from CSV files with different structures:
+The application comes with two sample CSV files in the `data/` directory:
+- `Members1.csv`: Contains basic member information and purchase data
+- `Members2.csv`: Contains additional member details and coverage information
 
-### Members1.csv Format:
-- Required fields: FirstName, LastName
-- Optional fields: Email, HomePhone, MobilePhone, Address1, Address2, City, State, Zip, Zip4
-- Specific fields: ProductName, DatePurchased, PaidAmount
+To import new data:
+1. Place your CSV files in the `data/` directory
+2. Update the import script if your CSV structure differs
+3. Run the import command:
+   ```bash
+   npx ts-node scripts/import-csv.ts
+   ```
 
-### Members2.csv Format:
-- Required fields: FirstName, LastName
-- Optional fields: Email, HomePhone, MobilePhone, Address1, Address2, City, State, Zip, Zip4
-- Specific fields: CoveredWeeks, LastStateWorked
+## 🚀 Deployment
 
-## Troubleshooting
+This project is configured for deployment on Netlify:
 
-1. **Database Issues**:
-   - If you encounter database errors, try:
-     ```bash
-     npx prisma migrate reset  # Reset the database
-     npx prisma generate      # Regenerate Prisma Client
-     ```
-   - Then re-run the data import script
+1. Push your code to GitHub
+2. Connect your repository to Netlify
+3. Add the following environment variables in Netlify:
+   - `DATABASE_URL`: Your Neon database connection string
+   - `NEXT_USE_NETLIFY_EDGE`: true
 
-2. **Import Script Errors**:
-   - Ensure CSV files are in the correct format
-   - Check file permissions
-   - Verify CSV column names match the expected format
+## 📝 API Routes
 
-## Author
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/members` | GET | Fetch all members with pagination |
+| `/api/members/search` | GET | Search members by name/email |
+| `/api/members/:id` | GET | Get specific member details |
 
-**Kyle Dilbeck**  
-GitHub: [https://github.com/xyian](https://github.com/xyian)
+## 🤝 Contributing
 
-## License
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Next.js team for the amazing framework
+- Prisma team for the excellent ORM
+- Netlify for hosting
+- Neon for the serverless PostgreSQL database
+
+---
+Built with ❤️ by [Kyle Dilbeck](https://github.com/xyian)
