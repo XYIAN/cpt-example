@@ -1,15 +1,68 @@
 # CPT Example Project
 
-A Next.js application demonstrating member data management with PostgreSQL, Prisma, and CSV import functionality. View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app).
+A modern, full-stack Next.js application showcasing best practices in web development through a member management system. Built with scalability and user experience in mind, this application demonstrates efficient CRUD operations, responsive design, and seamless data handling.
 
-## 🚀 Features
+## 💫 Overview
 
-- ✨ Modern UI with Tailwind CSS
-- 📊 Member data visualization
-- 🔍 Advanced search and filtering
-- 📱 Responsive design
-- 🗃️ CSV data import functionality
-- 🔒 PostgreSQL database integration
+This project serves as a practical example of:
+
+- **Robust Data Management**: Full CRUD operations with real-time updates and optimistic UI
+- **Modern Architecture**: Server-side rendering with Next.js 13+ App Router
+- **Scalable Database**: PostgreSQL integration via Neon's serverless platform
+- **Type Safety**: End-to-end type safety with TypeScript and Prisma ORM
+- **Responsive Design**: Mobile-first approach using Tailwind CSS and modern UI components
+- **Data Import**: Efficient bulk data handling through CSV import functionality
+
+View the live demo at [https://cptapp.netlify.app](https://cptapp.netlify.app)
+
+## 🎯 Key Features
+
+- ✨ **Intuitive Interface**
+  - Clean, modern UI with responsive design
+  - Dark/light mode support
+  - Accessible components following WCAG guidelines
+  - Interactive data tables with sorting and filtering
+
+- 🔍 **Advanced Search Capabilities**
+  - Real-time search with debouncing
+  - Multiple filter combinations
+  - Sortable columns
+  - Pagination for large datasets
+
+- 📊 **Data Management**
+  - Create, read, update, and delete member records
+  - Bulk import via CSV files
+  - Data validation and error handling
+  - Optimistic updates for better UX
+
+- 🏗️ **Scalable Architecture**
+  - Serverless PostgreSQL database
+  - Connection pooling for optimal performance
+  - API rate limiting
+  - Efficient caching strategies
+
+## 🚀 Technical Stack
+
+- **Frontend**
+  - Next.js 13+ with App Router
+  - React Server Components
+  - TailwindCSS for styling
+  - TypeScript for type safety
+  - PrimeReact UI components
+
+- **Backend**
+  - Next.js API Routes
+  - Prisma ORM
+  - PostgreSQL (Neon)
+  - CSV parsing and validation
+  - Zod schema validation
+
+- **Infrastructure**
+  - Netlify Edge Functions
+  - Serverless PostgreSQL
+  - Connection pooling
+  - GitHub Actions CI/CD
+  - Environment variable management
 
 ## 📋 Prerequisites
 

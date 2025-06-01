@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import SearchForm from '@/components/SearchForm';
 import MemberTable from '@/components/MemberTable';
@@ -55,12 +54,31 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async (params: { lastName?: string; email?: string; mobilePhone?: string }) => {
+  const handleSearch = async (params: {
+    lastName?: string;
+    email?: string;
+    mobilePhone?: string;
+    firstName?: string;
+    homePhone?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    productName?: string;
+    datePurchased?: string;
+    paidAmountMin?: number;
+    paidAmountMax?: number;
+    hasCoveredWeeks?: boolean;
+  }) => {
     try {
       const queryParams = new URLSearchParams();
-      if (params.lastName) queryParams.append('lastName', params.lastName);
-      if (params.email) queryParams.append('email', params.email);
-      if (params.mobilePhone) queryParams.append('mobilePhone', params.mobilePhone);
+      
+      // Add all non-empty params to the query string
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, value.toString());
+        }
+      });
 
       const response = await fetch(`/api/members/search?${queryParams}`);
       if (!response.ok) throw new Error('Failed to search members');
@@ -168,10 +186,6 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Class Action Lawsuit Member Management</h1>
-      </div>
-
       {error && (
         <Message 
           severity="error" 
@@ -180,23 +194,16 @@ export default function Home() {
         />
       )}
 
-      <div className="mb-4 flex justify-end">
-        <Button
-          label="Add New Member"
-          icon="pi pi-plus"
-          severity="success"
-          onClick={() => {
-            setIsAddingMember(true);
-            setEditingMember(null);
-          }}
-        />
-      </div>
-
-      <SearchForm onSearch={handleSearch} />
+      <SearchForm 
+        onSearch={handleSearch} 
+        onAddMember={() => {
+          setIsAddingMember(true);
+          setEditingMember(null);
+        }}
+      />
 
       {isAddingMember ? (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Add New Member</h2>
           <AddMemberForm
             onSubmit={handleAdd}
             onCancel={() => setIsAddingMember(false)}
@@ -204,7 +211,6 @@ export default function Home() {
         </div>
       ) : editingMember ? (
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Edit Member</h2>
           <EditMemberForm
             member={editingMember}
             onSave={handleSave}
