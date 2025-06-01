@@ -7,6 +7,7 @@ import SearchForm from '@/components/SearchForm';
 import MemberTable from '@/components/MemberTable';
 import EditMemberForm from '@/components/EditMemberForm';
 import AddMemberForm from '@/components/AddMemberForm';
+import { useToast } from '@/contexts/ToastContext';
 
 interface Member {
   id: number;
@@ -33,13 +34,14 @@ export default function Home() {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   // Load all members when the component mounts
   useEffect(() => {
-    loadAllMembers();
+    fetchMembers();
   }, []);
 
-  const loadAllMembers = async () => {
+  const fetchMembers = async () => {
     try {
       const response = await fetch('/api/members');
       if (!response.ok) throw new Error('Failed to fetch members');
@@ -47,31 +49,34 @@ export default function Home() {
       setMembers(data);
       setError(null);
     } catch (error) {
-      console.error('Error loading members:', error);
-      setError('Failed to load members. Please try again.');
+      console.error('Error fetching members:', error);
+      setError('Failed to fetch members. Please try again.');
+      toast.showError('Failed to fetch members', 'Please try again later.');
     }
   };
 
-  const handleSearch = async (searchParams: { lastName?: string; email?: string; mobilePhone?: string }) => {
+  const handleSearch = async (params: { lastName?: string; email?: string; mobilePhone?: string }) => {
     try {
       const queryParams = new URLSearchParams();
-      if (searchParams.lastName) queryParams.append('lastName', searchParams.lastName);
-      if (searchParams.email) queryParams.append('email', searchParams.email);
-      if (searchParams.mobilePhone) queryParams.append('mobilePhone', searchParams.mobilePhone);
+      if (params.lastName) queryParams.append('lastName', params.lastName);
+      if (params.email) queryParams.append('email', params.email);
+      if (params.mobilePhone) queryParams.append('mobilePhone', params.mobilePhone);
 
-      // If no search parameters are provided, load all members
-      if (queryParams.toString() === '') {
-        return loadAllMembers();
-      }
-
-      const response = await fetch(`/api/members?${queryParams.toString()}`);
-      if (!response.ok) throw new Error('Failed to fetch members');
+      const response = await fetch(`/api/members/search?${queryParams}`);
+      if (!response.ok) throw new Error('Failed to search members');
       const data = await response.json();
       setMembers(data);
       setError(null);
+
+      if (data.length === 0) {
+        toast.showInfo('No Results', 'No members found matching your search criteria.');
+      } else {
+        toast.showSuccess('Search Results', `Found ${data.length} member${data.length === 1 ? '' : 's'}.`);
+      }
     } catch (error) {
       console.error('Error searching members:', error);
       setError('Failed to search members. Please try again.');
+      toast.showError('Search Failed', 'Please try again later.');
     }
   };
 
@@ -99,9 +104,14 @@ export default function Home() {
       );
       setEditingMember(null);
       setError(null);
+      toast.showSuccess(
+        'Member Updated',
+        `Successfully updated ${updatedMember.firstName} ${updatedMember.lastName}.`
+      );
     } catch (error) {
       console.error('Error updating member:', error);
       setError('Failed to update member. Please try again.');
+      toast.showError('Update Failed', 'Please try again later.');
     }
   };
 
@@ -121,14 +131,20 @@ export default function Home() {
       setMembers(prevMembers => [...prevMembers, addedMember]);
       setIsAddingMember(false);
       setError(null);
+      toast.showInfo(
+        'Member Added',
+        `Successfully added ${addedMember.firstName} ${addedMember.lastName} to the system.`
+      );
     } catch (error) {
       console.error('Error adding member:', error);
       setError('Failed to add member. Please try again.');
+      toast.showError('Add Failed', 'Please try again later.');
     }
   };
 
   const handleDelete = async (memberId: number) => {
     try {
+      const memberToDelete = members.find(m => m.id === memberId);
       const response = await fetch(`/api/members/${memberId}`, {
         method: 'DELETE',
       });
@@ -137,9 +153,16 @@ export default function Home() {
 
       setMembers(prevMembers => prevMembers.filter(member => member.id !== memberId));
       setError(null);
+      if (memberToDelete) {
+        toast.showSuccess(
+          'Member Deleted',
+          `Successfully removed ${memberToDelete.firstName} ${memberToDelete.lastName} from the system.`
+        );
+      }
     } catch (error) {
       console.error('Error deleting member:', error);
       setError('Failed to delete member. Please try again.');
+      toast.showError('Delete Failed', 'Please try again later.');
     }
   };
 

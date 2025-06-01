@@ -21,59 +21,13 @@ const MemberInput = z.object({
   lastStateWorked: z.string().optional().nullable()
 });
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const lastName = searchParams.get('lastName');
-    const email = searchParams.get('email');
-    const mobilePhone = searchParams.get('mobilePhone');
-
-    // If no search parameters are provided, return all members
-    if (!lastName && !email && !mobilePhone) {
-      const members = await prisma.member.findMany({
-        orderBy: {
-          lastName: 'asc',
-        },
-      });
-      return NextResponse.json(members);
-    }
-
-    // Build search conditions
-    const searchConditions = [];
-    
-    if (lastName) {
-      searchConditions.push({
-        lastName: {
-          contains: lastName,
-        },
-      });
-    }
-    
-    if (email) {
-      searchConditions.push({
-        email: {
-          contains: email,
-        },
-      });
-    }
-    
-    if (mobilePhone) {
-      searchConditions.push({
-        mobilePhone: {
-          contains: mobilePhone,
-        },
-      });
-    }
-
     const members = await prisma.member.findMany({
-      where: {
-        OR: searchConditions,
-      },
       orderBy: {
         lastName: 'asc',
       },
     });
-
     return NextResponse.json(members);
   } catch (error) {
     console.error('Error fetching members:', error);
