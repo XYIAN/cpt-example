@@ -40,7 +40,7 @@ A web-based application for managing class action lawsuit members. Built with Ne
    ```
 
 5. Import CSV data:
-   - Place your CSV files in the `data` directory:
+   - CSV files are placed in the `data` directory:
      - `data/Members1.csv`
      - `data/Members2.csv`
    - Run the import script:
