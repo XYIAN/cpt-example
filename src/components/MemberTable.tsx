@@ -1,7 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import ConfirmDialog from './ConfirmDialog';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Button } from 'primereact/button';
+import { ConfirmDialog } from 'primereact/confirmdialog';
+import { Card } from 'primereact/card';
 
 interface Member {
   id: number;
@@ -46,106 +50,119 @@ export default function MemberTable({ members, onEdit, onDelete }: MemberTablePr
     }
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteConfirmOpen(false);
-    setMemberToDelete(null);
+  const nameBodyTemplate = (rowData: Member) => {
+    return `${rowData.firstName} ${rowData.lastName}`;
   };
 
-  return (
-    <>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Address
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product Details
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {members.map((member) => (
-              <tr key={member.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{member.firstName} {member.lastName}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{member.email}</div>
-                  <div className="text-sm text-gray-500">
-                    {member.mobilePhone && <div>M: {member.mobilePhone}</div>}
-                    {member.homePhone && <div>H: {member.homePhone}</div>}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {member.address1}
-                    {member.address2 && <div>{member.address2}</div>}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {member.city}, {member.state} {member.zip}{member.zip4 && `-${member.zip4}`}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{member.productName}</div>
-                  {member.datePurchased && (
-                    <div className="text-sm text-gray-500">
-                      Purchased: {new Date(member.datePurchased).toLocaleDateString()}
-                    </div>
-                  )}
-                  {member.paidAmount && (
-                    <div className="text-sm text-gray-500">
-                      Amount: ${member.paidAmount.toFixed(2)}
-                    </div>
-                  )}
-                  {member.coveredWeeks && (
-                    <div className="text-sm text-gray-500">
-                      Covered Weeks: {member.coveredWeeks}
-                    </div>
-                  )}
-                  {member.lastStateWorked && (
-                    <div className="text-sm text-gray-500">
-                      Last State: {member.lastStateWorked}
-                    </div>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                  <button
-                    onClick={() => onEdit(member)}
-                    className="text-indigo-600 hover:text-indigo-900"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(member)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  const contactBodyTemplate = (rowData: Member) => {
+    return (
+      <div>
+        <div>{rowData.email}</div>
+        {rowData.mobilePhone && <div className="text-sm text-gray-500">M: {rowData.mobilePhone}</div>}
+        {rowData.homePhone && <div className="text-sm text-gray-500">H: {rowData.homePhone}</div>}
       </div>
+    );
+  };
+
+  const addressBodyTemplate = (rowData: Member) => {
+    return (
+      <div>
+        <div>{rowData.address1}</div>
+        {rowData.address2 && <div>{rowData.address2}</div>}
+        <div className="text-sm text-gray-500">
+          {rowData.city}, {rowData.state} {rowData.zip}{rowData.zip4 && `-${rowData.zip4}`}
+        </div>
+      </div>
+    );
+  };
+
+  const productDetailsBodyTemplate = (rowData: Member) => {
+    return (
+      <div>
+        <div>{rowData.productName}</div>
+        {rowData.datePurchased && (
+          <div className="text-sm text-gray-500">
+            Purchased: {new Date(rowData.datePurchased).toLocaleDateString()}
+          </div>
+        )}
+        {rowData.paidAmount && (
+          <div className="text-sm text-gray-500">
+            Amount: ${rowData.paidAmount.toFixed(2)}
+          </div>
+        )}
+        {rowData.coveredWeeks && (
+          <div className="text-sm text-gray-500">
+            Covered Weeks: {rowData.coveredWeeks}
+          </div>
+        )}
+        {rowData.lastStateWorked && (
+          <div className="text-sm text-gray-500">
+            Last State: {rowData.lastStateWorked}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const actionBodyTemplate = (rowData: Member) => {
+    return (
+      <div className="flex gap-2 justify-end">
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          outlined
+          severity="info"
+          onClick={() => onEdit(rowData)}
+          tooltip="Edit"
+        />
+        <Button
+          icon="pi pi-trash"
+          rounded
+          outlined
+          severity="danger"
+          onClick={() => handleDeleteClick(rowData)}
+          tooltip="Delete"
+        />
+      </div>
+    );
+  };
+
+  const header = (
+    <div className="flex justify-between items-center">
+      <h2 className="text-xl font-semibold m-0">Members</h2>
+    </div>
+  );
+
+  return (
+    <Card>
+      <DataTable
+        value={members}
+        paginator
+        rows={10}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        tableStyle={{ minWidth: '50rem' }}
+        header={header}
+        emptyMessage="No members found."
+        className="p-datatable-sm"
+        sortField="lastName"
+        sortOrder={1}
+      >
+        <Column field="name" header="Name" body={nameBodyTemplate} sortable sortField="lastName" />
+        <Column field="contact" header="Contact" body={contactBodyTemplate} />
+        <Column field="address" header="Address" body={addressBodyTemplate} />
+        <Column field="productDetails" header="Product Details" body={productDetailsBodyTemplate} />
+        <Column body={actionBodyTemplate} style={{ width: '8rem' }} />
+      </DataTable>
 
       <ConfirmDialog
-        isOpen={deleteConfirmOpen}
-        title="Delete Member"
+        visible={deleteConfirmOpen}
+        onHide={() => setDeleteConfirmOpen(false)}
         message={`Are you sure you want to delete ${memberToDelete?.firstName} ${memberToDelete?.lastName}?`}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
+        header="Confirm Delete"
+        icon="pi pi-exclamation-triangle"
+        accept={handleDeleteConfirm}
+        reject={() => setDeleteConfirmOpen(false)}
       />
-    </>
+    </Card>
   );
 } 
