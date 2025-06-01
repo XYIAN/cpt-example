@@ -54,12 +54,31 @@ export default function Home() {
     }
   };
 
-  const handleSearch = async (params: { lastName?: string; email?: string; mobilePhone?: string }) => {
+  const handleSearch = async (params: {
+    lastName?: string;
+    email?: string;
+    mobilePhone?: string;
+    firstName?: string;
+    homePhone?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    productName?: string;
+    datePurchased?: string;
+    paidAmountMin?: number;
+    paidAmountMax?: number;
+    hasCoveredWeeks?: boolean;
+  }) => {
     try {
       const queryParams = new URLSearchParams();
-      if (params.lastName) queryParams.append('lastName', params.lastName);
-      if (params.email) queryParams.append('email', params.email);
-      if (params.mobilePhone) queryParams.append('mobilePhone', params.mobilePhone);
+      
+      // Add all non-empty params to the query string
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, value.toString());
+        }
+      });
 
       const response = await fetch(`/api/members/search?${queryParams}`);
       if (!response.ok) throw new Error('Failed to search members');
