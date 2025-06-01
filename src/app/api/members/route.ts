@@ -45,7 +45,6 @@ export async function GET(request: Request) {
       searchConditions.push({
         lastName: {
           contains: lastName,
-          mode: 'insensitive' as const,
         },
       });
     }
@@ -54,7 +53,6 @@ export async function GET(request: Request) {
       searchConditions.push({
         email: {
           contains: email,
-          mode: 'insensitive' as const,
         },
       });
     }
@@ -63,7 +61,6 @@ export async function GET(request: Request) {
       searchConditions.push({
         mobilePhone: {
           contains: mobilePhone,
-          mode: 'insensitive' as const,
         },
       });
     }

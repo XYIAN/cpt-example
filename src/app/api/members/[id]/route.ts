@@ -25,12 +25,14 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const id = parseInt(params.id);
+  
   try {
     const body = await request.json();
     const validatedData = MemberInput.parse(body);
 
     const member = await prisma.member.update({
-      where: { id: parseInt(params.id) },
+      where: { id },
       data: {
         ...validatedData,
         datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
@@ -51,8 +53,9 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const id = parseInt(params.id);
+  
   try {
-    const id = parseInt(params.id);
     const member = await prisma.member.findUnique({
       where: { id },
     });
