@@ -5,9 +5,7 @@
 [build.environment]
   NEXT_USE_NETLIFY_EDGE = "true"
   NODE_VERSION = "18"
-  # Ensure Prisma generates the client during build
   PRISMA_GENERATE = "true"
-  # Skip downloading the Prisma engines since we don't need them in production
   PRISMA_CLI_BINARY_TARGETS = "rhel-openssl-1.0.x"
 
 [[plugins]]
