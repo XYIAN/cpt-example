@@ -125,6 +125,22 @@ export default function Home() {
     }
   };
 
+  const handleDelete = async (memberId: number) => {
+    try {
+      const response = await fetch(`/api/members/${memberId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete member');
+
+      setMembers(prevMembers => prevMembers.filter(member => member.id !== memberId));
+      setError(null);
+    } catch (error) {
+      console.error('Error deleting member:', error);
+      setError('Failed to delete member. Please try again.');
+    }
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Class Action Lawsuit Member Management</h1>
@@ -174,7 +190,11 @@ export default function Home() {
             {members.length > 0 ? 'Members' : 'No members found'}
           </h2>
           {members.length > 0 ? (
-            <MemberTable members={members} onEdit={handleEdit} />
+            <MemberTable 
+              members={members} 
+              onEdit={handleEdit} 
+              onDelete={handleDelete}
+            />
           ) : (
             <p className="text-gray-500 text-center py-8">
               No members found matching your search criteria.

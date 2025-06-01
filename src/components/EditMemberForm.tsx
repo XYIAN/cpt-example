@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { formInputClasses, buttonClasses } from '../styles/theme';
 
 interface Member {
   id: number;
@@ -29,19 +30,47 @@ interface EditMemberFormProps {
 }
 
 export default function EditMemberForm({ member, onSave, onCancel }: EditMemberFormProps) {
-  const [formData, setFormData] = useState<Member>(member);
+  const [formData, setFormData] = useState<Member>({
+    ...member,
+    email: member.email || '',
+    homePhone: member.homePhone || '',
+    mobilePhone: member.mobilePhone || '',
+    address1: member.address1 || '',
+    address2: member.address2 || '',
+    city: member.city || '',
+    state: member.state || '',
+    zip: member.zip || '',
+    zip4: member.zip4 || '',
+    productName: member.productName || '',
+    datePurchased: member.datePurchased || '',
+    lastStateWorked: member.lastStateWorked || ''
+  });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    // Convert empty strings back to null before saving
+    const submissionData = Object.entries(formData).reduce<Partial<Member>>((acc, [key, value]) => {
+      const typedKey = key as keyof Member;
+      acc[typedKey] = value === '' ? null : value;
+      return acc;
+    }, {}) as Member;
+    onSave(submissionData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? (value ? Number(value) : null) : (value || null)
-    }));
+    
+    if (type === 'number') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value === '' ? null : Number(value)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   return (
@@ -56,7 +85,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             required
             value={formData.firstName}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -69,7 +98,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             required
             value={formData.lastName}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -81,7 +110,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="email"
             value={formData.email || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -93,7 +122,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="mobilePhone"
             value={formData.mobilePhone || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -105,7 +134,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="homePhone"
             value={formData.homePhone || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -117,7 +146,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="address1"
             value={formData.address1 || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -129,7 +158,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="address2"
             value={formData.address2 || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -141,7 +170,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="city"
             value={formData.city || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -153,7 +182,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="state"
             value={formData.state || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -165,7 +194,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="zip"
             value={formData.zip || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -177,7 +206,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="zip4"
             value={formData.zip4 || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -189,7 +218,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="productName"
             value={formData.productName || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -199,9 +228,9 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             type="date"
             name="datePurchased"
             id="datePurchased"
-            value={formData.datePurchased ? new Date(formData.datePurchased).toISOString().split('T')[0] : ''}
+            value={formData.datePurchased || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -214,7 +243,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             step="0.01"
             value={formData.paidAmount || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -226,7 +255,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="coveredWeeks"
             value={formData.coveredWeeks || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
 
@@ -238,7 +267,7 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
             id="lastStateWorked"
             value={formData.lastStateWorked || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className={formInputClasses}
           />
         </div>
       </div>
@@ -247,13 +276,13 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className={buttonClasses.secondary}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className={buttonClasses.primary}
         >
           Save Changes
         </button>

@@ -73,4 +73,24 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  try {
+    const id = parseInt(context.params.id);
+    await prisma.member.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting member:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete member' },
+      { status: 500 }
+    );
+  }
 } 
