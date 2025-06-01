@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 
 const MemberInput = z.object({
   firstName: z.string(),
@@ -18,7 +19,8 @@ const MemberInput = z.object({
   datePurchased: z.string().optional().nullable(),
   paidAmount: z.number().optional().nullable(),
   coveredWeeks: z.number().optional().nullable(),
-  lastStateWorked: z.string().optional().nullable()
+  lastStateWorked: z.string().optional().nullable(),
+  version: z.number(), // Required for optimistic locking
 });
 
 export async function PUT(request: Request) {
@@ -27,15 +29,78 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const validatedData = MemberInput.parse(body);
 
-    const member = await prisma.member.update({
+    // First, check if the record is locked
+    const currentMember = await prisma.member.findUnique({
       where: { id },
-      data: {
-        ...validatedData,
-        datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
-      },
+      select: { version: true, isLocked: true }
     });
 
-    return NextResponse.json(member);
+    if (!currentMember) {
+      return NextResponse.json(
+        { error: 'Member not found' },
+        { status: 404 }
+      );
+    }
+
+    if (currentMember.isLocked) {
+      return NextResponse.json(
+        { error: 'Member record is currently locked by another user' },
+        { status: 409 }
+      );
+    }
+
+    // Check version for optimistic locking
+    if (currentMember.version !== validatedData.version) {
+      return NextResponse.json(
+        { 
+          error: 'Record has been modified by another user',
+          currentVersion: currentMember.version,
+          yourVersion: validatedData.version
+        },
+        { status: 409 }
+      );
+    }
+
+    // Lock the record
+    await prisma.member.update({
+      where: { id },
+      data: { isLocked: true }
+    });
+
+    try {
+      // Perform the update with version increment
+      const member = await prisma.member.update({
+        where: { 
+          id,
+          version: validatedData.version // Extra check to ensure version hasn't changed
+        },
+        data: {
+          ...validatedData,
+          datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
+          version: { increment: 1 }, // Increment version
+          isLocked: false // Release the lock
+        },
+      });
+
+      return NextResponse.json(member);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          // Record was modified while we held the lock
+          return NextResponse.json(
+            { error: 'Record was modified by another user during update' },
+            { status: 409 }
+          );
+        }
+      }
+      throw error;
+    } finally {
+      // Always release the lock in case of error
+      await prisma.member.update({
+        where: { id },
+        data: { isLocked: false }
+      }).catch(console.error); // Log but don't throw if unlock fails
+    }
   } catch (error) {
     console.error('Error updating member:', error);
     return NextResponse.json(
@@ -72,6 +137,27 @@ export async function GET(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const id = parseInt(request.url.split('/').pop() || '');
+    
+    // Check if the record is locked
+    const member = await prisma.member.findUnique({
+      where: { id },
+      select: { isLocked: true }
+    });
+
+    if (!member) {
+      return NextResponse.json(
+        { error: 'Member not found' },
+        { status: 404 }
+      );
+    }
+
+    if (member.isLocked) {
+      return NextResponse.json(
+        { error: 'Member record is currently locked by another user' },
+        { status: 409 }
+      );
+    }
+
     await prisma.member.delete({
       where: { id },
     });

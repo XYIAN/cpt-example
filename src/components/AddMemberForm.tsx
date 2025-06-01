@@ -6,69 +6,47 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
+import type { Member } from '@/types/member';
 
-interface Member {
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  homePhone: string | null;
-  mobilePhone: string | null;
-  address1: string | null;
-  address2: string | null;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-  zip4: string | null;
-  productName: string | null;
-  datePurchased: string | null;
-  paidAmount: number | null;
-  coveredWeeks: number | null;
-  lastStateWorked: string | null;
-}
+type NewMember = Omit<Member, 'id' | 'version' | 'isLocked' | 'lastModifiedBy' | 'createdAt' | 'updatedAt'>;
 
 interface AddMemberFormProps {
-  onSubmit: (member: Member) => void;
+  onSubmit: (member: NewMember) => void;
   onCancel: () => void;
 }
 
-const emptyMember: Member = {
+const emptyMember: NewMember = {
   firstName: '',
   lastName: '',
-  email: '',
-  homePhone: '',
-  mobilePhone: '',
-  address1: '',
-  address2: '',
-  city: '',
-  state: '',
-  zip: '',
-  zip4: '',
-  productName: '',
-  datePurchased: '',
+  email: null,
+  homePhone: null,
+  mobilePhone: null,
+  address1: null,
+  address2: null,
+  city: null,
+  state: null,
+  zip: null,
+  zip4: null,
+  productName: null,
+  datePurchased: null,
   paidAmount: null,
   coveredWeeks: null,
-  lastStateWorked: ''
+  lastStateWorked: null
 };
 
 export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps) {
-  const [formData, setFormData] = useState<Member>(emptyMember);
+  const [formData, setFormData] = useState<NewMember>(emptyMember);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Convert empty strings to null before submitting
-    const submissionData = Object.entries(formData).reduce<Partial<Member>>((acc, [key, value]) => {
-      const typedKey = key as keyof Member;
-      acc[typedKey] = value === '' ? null : value;
-      return acc;
-    }, {}) as Member;
-    onSubmit(submissionData);
+    onSubmit(formData);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value || null
     }));
   };
 
@@ -249,7 +227,6 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
               value={formData.datePurchased ? new Date(formData.datePurchased) : null}
               onChange={(e) => handleDateChange(e.value as Date)}
               dateFormat="yy-mm-dd"
-              showIcon
             />
             <label htmlFor="datePurchased">Date Purchased</label>
           </span>
@@ -259,12 +236,11 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
           <span className="p-float-label">
             <InputNumber
               id="paidAmount"
-              value={formData.paidAmount ?? undefined}
+              value={formData.paidAmount === null ? undefined : formData.paidAmount}
               onValueChange={(e) => handleNumberChange('paidAmount', e)}
               mode="currency"
               currency="USD"
               locale="en-US"
-              minFractionDigits={2}
             />
             <label htmlFor="paidAmount">Paid Amount</label>
           </span>
@@ -274,7 +250,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
           <span className="p-float-label">
             <InputNumber
               id="coveredWeeks"
-              value={formData.coveredWeeks ?? undefined}
+              value={formData.coveredWeeks === null ? undefined : formData.coveredWeeks}
               onValueChange={(e) => handleNumberChange('coveredWeeks', e)}
             />
             <label htmlFor="coveredWeeks">Covered Weeks</label>

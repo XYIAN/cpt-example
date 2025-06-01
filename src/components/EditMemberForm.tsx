@@ -6,26 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
-
-interface Member {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  homePhone: string | null;
-  mobilePhone: string | null;
-  address1: string | null;
-  address2: string | null;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-  zip4: string | null;
-  productName: string | null;
-  datePurchased: string | null;
-  paidAmount: number | null;
-  coveredWeeks: number | null;
-  lastStateWorked: string | null;
-}
+import type { Member } from '@/types/member';
 
 interface EditMemberFormProps {
   member: Member;
@@ -47,7 +28,13 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
     zip4: member.zip4 || '',
     productName: member.productName || '',
     datePurchased: member.datePurchased || '',
-    lastStateWorked: member.lastStateWorked || ''
+    lastStateWorked: member.lastStateWorked || '',
+    // Preserve version control fields
+    version: member.version,
+    lastModifiedBy: member.lastModifiedBy,
+    isLocked: member.isLocked,
+    createdAt: member.createdAt,
+    updatedAt: member.updatedAt
   });
 
   const handleSubmit = (e: FormEvent) => {
@@ -246,7 +233,6 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
               value={formData.datePurchased ? new Date(formData.datePurchased) : null}
               onChange={(e) => handleDateChange(e.value as Date)}
               dateFormat="yy-mm-dd"
-              showIcon
             />
             <label htmlFor="datePurchased">Date Purchased</label>
           </span>
@@ -261,7 +247,6 @@ export default function EditMemberForm({ member, onSave, onCancel }: EditMemberF
               mode="currency"
               currency="USD"
               locale="en-US"
-              minFractionDigits={2}
             />
             <label htmlFor="paidAmount">Paid Amount</label>
           </span>
