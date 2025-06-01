@@ -40,10 +40,21 @@ A full-stack Next.js application for managing class action lawsuit members. The 
    ```
 3. Set up the database:
    ```bash
-   npx prisma generate
-   npx prisma db push
+   npx prisma migrate dev
    ```
-4. Run the development server:
+
+5. Import CSV data:
+   - CSV files are placed in the `data` directory:
+     - `data/Members1.csv`
+     - `data/Members2.csv`
+   - Run the import script:
+     ```bash
+     npx ts-node scripts/import-csv.ts
+     ```
+
+## Running the Application
+
+1. Start the development server:
    ```bash
    npm run dev
    ```
