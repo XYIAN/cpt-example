@@ -1,79 +1,67 @@
-# Class Action Lawsuit Member Management System
+# Class Action Lawsuit Member Management
 
-A web-based application for managing class action lawsuit members. Built with Next.js, TypeScript, Prisma, and SQLite.
+A full-stack Next.js application for managing class action lawsuit members. The application provides functionality for importing, searching, and managing member data from various sources.
 
 ## Features
 
-- Search members by Last Name, Email, or Mobile Phone
-- View member details in a clean, organized table
-- Edit existing member information
-- Add new members
+- Search members by last name, email, or mobile phone
+- Add new members with comprehensive information
+- Edit existing member details
 - Import member data from CSV files
-- Responsive design for all screen sizes
+- Responsive design with modern UI
+- Data validation and error handling
 
-## Prerequisites
+## Technologies
 
-- Node.js 18.x or later
-- npm 9.x or later
+- **Next.js 13+** - React framework with App Router
+- **TypeScript** - Type-safe JavaScript
+- **Prisma** - Type-safe ORM for database operations
+- **SQLite** - Lightweight, file-based database
+- **TailwindCSS** - Utility-first CSS framework
+- **Zod** - TypeScript-first schema validation with static type inference
 
-## Setup
+## Dependencies
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-name>
-   ```
+- `@prisma/client` - Prisma ORM client for database operations
+- `@tailwindcss/forms` - Form styling utilities for Tailwind CSS
+- `csv-parse` - CSV parsing library for data imports
+- `zod` - Schema declaration and validation
+- `typescript` - JavaScript with syntax for types
+- `tailwindcss` - A utility-first CSS framework
+- `postcss` - Tool for transforming CSS with JavaScript
+- `autoprefixer` - PostCSS plugin to parse CSS and add vendor prefixes
 
+## Getting Started
+
+1. Clone the repository
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Create a `.env` file in the root directory with:
-   ```
-   DATABASE_URL="file:./dev.db"
-   ```
-
-4. Set up the database:
+3. Set up the database:
    ```bash
-   npx prisma migrate dev
+   npx prisma generate
+   npx prisma db push
    ```
-
-5. Import CSV data:
-   - Place your CSV files in the `data` directory:
-     - `data/Members1.csv`
-     - `data/Members2.csv`
-   - Run the import script:
-     ```bash
-     npx ts-node scripts/import-csv.ts
-     ```
-
-## Running the Application
-
-1. Start the development server:
+4. Run the development server:
    ```bash
    npm run dev
    ```
 
-2. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Environment Variables
 
-## CSV File Format
+Create a `.env` file in the root directory with the following variables:
+```
+DATABASE_URL="file:./dev.db"
+```
 
-The import script expects CSV files with the following columns:
-- FirstName
-- LastName
-- Email (optional)
-- MobilePhone (optional)
-- Address (optional)
+## Data Import
 
-## Development
+The application supports importing member data from CSV files with different structures:
+- Members1.csv: includes ProductName, DatePurchased, PaidAmount
+- Members2.csv: includes CoveredWeeks, LastStateWorked
 
-- `src/app/` - Next.js app router pages and API routes
-- `src/components/` - React components
-- `src/lib/` - Utility functions and database client
-- `prisma/` - Database schema and migrations
-- `scripts/` - Data import and utility scripts
+## Author
 
-## License
-
-MIT
+**Kyle Dilbeck**  
+GitHub: [https://github.com/xyian](https://github.com/xyian)

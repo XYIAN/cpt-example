@@ -23,11 +23,10 @@ const MemberInput = z.object({
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = parseInt(params.id);
-  
   try {
+    const id = parseInt(context.params.id);
     const body = await request.json();
     const validatedData = MemberInput.parse(body);
 
@@ -51,11 +50,10 @@ export async function PUT(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = parseInt(params.id);
-  
   try {
+    const id = parseInt(context.params.id);
     const member = await prisma.member.findUnique({
       where: { id },
     });

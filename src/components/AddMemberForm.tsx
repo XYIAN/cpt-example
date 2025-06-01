@@ -29,20 +29,20 @@ interface AddMemberFormProps {
 const emptyMember: Member = {
   firstName: '',
   lastName: '',
-  email: null,
-  homePhone: null,
-  mobilePhone: null,
-  address1: null,
-  address2: null,
-  city: null,
-  state: null,
-  zip: null,
-  zip4: null,
-  productName: null,
-  datePurchased: null,
+  email: '',
+  homePhone: '',
+  mobilePhone: '',
+  address1: '',
+  address2: '',
+  city: '',
+  state: '',
+  zip: '',
+  zip4: '',
+  productName: '',
+  datePurchased: '',
   paidAmount: null,
   coveredWeeks: null,
-  lastStateWorked: null
+  lastStateWorked: ''
 };
 
 export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps) {
@@ -50,15 +50,29 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Convert empty strings to null before submitting
+    const submissionData = Object.entries(formData).reduce<Partial<Member>>((acc, [key, value]) => {
+      const typedKey = key as keyof Member;
+      acc[typedKey] = value === '' ? null : value;
+      return acc;
+    }, {}) as Member;
+    onSubmit(submissionData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? (value ? Number(value) : null) : (value || null)
-    }));
+    
+    if (type === 'number') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value === '' ? null : Number(value)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   return (
@@ -73,7 +87,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             required
             value={formData.firstName}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -86,7 +100,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             required
             value={formData.lastName}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -98,7 +112,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="email"
             value={formData.email || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -110,7 +124,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="mobilePhone"
             value={formData.mobilePhone || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -122,7 +136,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="homePhone"
             value={formData.homePhone || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -134,7 +148,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="address1"
             value={formData.address1 || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -146,7 +160,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="address2"
             value={formData.address2 || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -158,7 +172,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="city"
             value={formData.city || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -170,7 +184,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="state"
             value={formData.state || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -182,7 +196,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="zip"
             value={formData.zip || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -194,7 +208,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="zip4"
             value={formData.zip4 || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -206,7 +220,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="productName"
             value={formData.productName || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -218,7 +232,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="datePurchased"
             value={formData.datePurchased || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -231,7 +245,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             step="0.01"
             value={formData.paidAmount || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -243,7 +257,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="coveredWeeks"
             value={formData.coveredWeeks || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
 
@@ -255,7 +269,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             id="lastStateWorked"
             value={formData.lastStateWorked || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-black"
           />
         </div>
       </div>
