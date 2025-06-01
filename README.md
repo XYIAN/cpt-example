@@ -19,37 +19,52 @@ A full-stack Next.js application for managing class action lawsuit members. The 
 - **SQLite** - Lightweight, file-based database
 - **TailwindCSS** - Utility-first CSS framework
 - **Zod** - TypeScript-first schema validation with static type inference
+- **PrimeReact** - UI Component Library
 
-## Dependencies
+## Prerequisites
 
-- `@prisma/client` - Prisma ORM client for database operations
-- `@tailwindcss/forms` - Form styling utilities for Tailwind CSS
-- `csv-parse` - CSV parsing library for data imports
-- `zod` - Schema declaration and validation
-- `typescript` - JavaScript with syntax for types
-- `tailwindcss` - A utility-first CSS framework
-- `postcss` - Tool for transforming CSS with JavaScript
-- `autoprefixer` - PostCSS plugin to parse CSS and add vendor prefixes
+- Node.js 18+ and npm
+- Git
 
 ## Getting Started
 
-1. Clone the repository
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd class-action-lawsuit-manager
+   ```
+
 2. Install dependencies:
    ```bash
    npm install
    ```
-3. Set up the database:
+
+3. Set up environment variables:
    ```bash
-   npx prisma migrate dev
+   # Create a .env file in the root directory
+   echo 'DATABASE_URL="file:./prisma/dev.db"' > .env
    ```
 
-5. Import CSV data:
-   - CSV files are placed in the `data` directory:
+4. Set up the database and generate Prisma client:
+   ```bash
+   # Generate Prisma Client
+   npx prisma generate
+
+   # Create database and run migrations
+   npx prisma migrate dev
+
+   # (Optional) Open Prisma Studio to view/edit data
+   npx prisma studio
+   ```
+
+5. Import sample data (if available):
+   - Ensure CSV files are placed in the `data` directory:
      - `data/Members1.csv`
      - `data/Members2.csv`
    - Run the import script:
      ```bash
-     npx ts-node scripts/import-csv.ts
+     # Run with ts-node and ESM support
+     NODE_OPTIONS='--loader ts-node/esm' npx ts-node --esm scripts/import-csv.ts
      ```
 
 ## Running the Application
@@ -59,20 +74,76 @@ A full-stack Next.js application for managing class action lawsuit members. The 
    npm run dev
    ```
 
-## Environment Variables
+2. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-Create a `.env` file in the root directory with the following variables:
+## Development Tools
+
+- **Prisma Studio**: Access the database GUI
+  ```bash
+  npx prisma studio
+  ```
+  This will open a browser window at [http://localhost:5555](http://localhost:5555)
+
+- **Type Generation**: After making changes to the Prisma schema
+  ```bash
+  npx prisma generate
+  ```
+
+- **Database Migrations**: After modifying the schema
+  ```bash
+  npx prisma migrate dev --name <migration-name>
+  ```
+
+## Project Structure
+
 ```
-DATABASE_URL="file:./dev.db"
+├── data/                  # CSV data files
+├── prisma/               
+│   ├── schema.prisma     # Database schema
+│   └── migrations/       # Database migrations
+├── scripts/
+│   └── import-csv.ts     # Data import script
+├── src/
+│   ├── app/             # Next.js app router pages
+│   ├── components/      # React components
+│   ├── contexts/        # React contexts
+│   └── lib/            # Utility functions and shared code
 ```
 
-## Data Import
+## Data Import Format
 
 The application supports importing member data from CSV files with different structures:
-- Members1.csv: includes ProductName, DatePurchased, PaidAmount
-- Members2.csv: includes CoveredWeeks, LastStateWorked
+
+### Members1.csv Format:
+- Required fields: FirstName, LastName
+- Optional fields: Email, HomePhone, MobilePhone, Address1, Address2, City, State, Zip, Zip4
+- Specific fields: ProductName, DatePurchased, PaidAmount
+
+### Members2.csv Format:
+- Required fields: FirstName, LastName
+- Optional fields: Email, HomePhone, MobilePhone, Address1, Address2, City, State, Zip, Zip4
+- Specific fields: CoveredWeeks, LastStateWorked
+
+## Troubleshooting
+
+1. **Database Issues**:
+   - If you encounter database errors, try:
+     ```bash
+     npx prisma migrate reset  # Reset the database
+     npx prisma generate      # Regenerate Prisma Client
+     ```
+   - Then re-run the data import script
+
+2. **Import Script Errors**:
+   - Ensure CSV files are in the correct format
+   - Check file permissions
+   - Verify CSV column names match the expected format
 
 ## Author
 
 **Kyle Dilbeck**  
 GitHub: [https://github.com/xyian](https://github.com/xyian)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

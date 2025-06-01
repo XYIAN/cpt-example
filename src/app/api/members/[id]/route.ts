@@ -21,12 +21,9 @@ const MemberInput = z.object({
   lastStateWorked: z.string().optional().nullable()
 });
 
-export async function PUT(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function PUT(request: Request) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(request.url.split('/').pop() || '');
     const body = await request.json();
     const validatedData = MemberInput.parse(body);
 
@@ -48,12 +45,9 @@ export async function PUT(
   }
 }
 
-export async function GET(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function GET(request: Request) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(request.url.split('/').pop() || '');
     const member = await prisma.member.findUnique({
       where: { id },
     });
@@ -75,12 +69,9 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
-) {
+export async function DELETE(request: Request) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(request.url.split('/').pop() || '');
     await prisma.member.delete({
       where: { id },
     });

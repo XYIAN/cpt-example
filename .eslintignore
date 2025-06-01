@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Prisma
+src/generated/**
+src/generated/prisma/**
+prisma/generated/**
+prisma/client/**
+**/*.generated.*
+**/*.prisma.*
+**/runtime/**
+**/wasm.js
+**/react-native.js
+**/index-browser.js
+**/runtime.js
+**/edge.js
+**/edge-esm.js
+**/binary.js
+**/library.js
+**/index.js
+**/index.d.ts
+**/schema.prisma
+**/migrations/**
+**/@prisma/**
+**/prisma/**
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+.env
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts 
