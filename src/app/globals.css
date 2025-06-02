@@ -23,3 +23,81 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 } */
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: transparent;
+}
+
+/* Make PrimeReact components more visible on dark background */
+.p-component {
+  --primary-color: #6366f1;
+  --primary-color-text: #ffffff;
+}
+
+.p-datatable {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: #ffffff !important;
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.p-fieldset {
+  background: rgba(0, 0, 0, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.p-fieldset .p-fieldset-legend {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.p-float-label label {
+  color: #ffffff !important;
+}
+
+.p-inputtext {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.p-inputtext:enabled:hover {
+  border-color: var(--primary-color) !important;
+}
+
+.p-dialog {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+.p-dialog .p-dialog-header {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #ffffff !important;
+}
+
+.p-dialog .p-dialog-content {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.p-dialog .p-dialog-footer {
+  background: rgba(0, 0, 0, 0.8) !important;
+}

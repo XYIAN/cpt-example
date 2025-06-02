@@ -213,55 +213,64 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto px-2 py-8">
-      <SearchForm 
-        onSearch={handleSearch} 
-        onAdd={() => setIsAddingMember(true)}
-      />
-      
-      {error && (
-        <Message severity="error" text={error} className="mb-4" />
-      )}
-
-      {isLoading ? (
-        <div className="flex justify-center items-center p-8">
-          <ProgressSpinner />
-        </div>
-      ) : (
-        <MemberTable
-          members={members}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
-
-      <AddMemberForm
-        onSubmit={(member) => {
-          handleAdd(member);
-          setIsAddingMember(false);
+    <div className="min-h-screen relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0"
+        style={{
+          backgroundImage: 'url(/cpt-photo.png)',
+          filter: 'brightness(0.3)',
         }}
-        onCancel={() => setIsAddingMember(false)}
-        visible={isAddingMember}
       />
-
-      {editingMember && (
-        <EditMemberForm
-          member={editingMember}
-          onSave={handleSave}
-          onCancel={() => setEditingMember(null)}
-          visible={!!editingMember}
+      <main className="container mx-auto px-2 py-8 relative z-10">
+        <SearchForm 
+          onSearch={handleSearch} 
+          onAdd={() => setIsAddingMember(true)}
         />
-      )}
+        
+        {error && (
+          <Message severity="error" text={error} className="mb-4" />
+        )}
 
-      <ConfirmDialog
-        visible={showVersionConflict}
-        onHide={() => setShowVersionConflict(false)}
-        message="This record has been modified by another user. Would you like to refresh and get the latest version?"
-        header="Version Conflict Detected"
-        icon="pi pi-exclamation-triangle"
-        accept={handleVersionConflict}
-        reject={() => setShowVersionConflict(false)}
-      />
-    </main>
+        {isLoading ? (
+          <div className="flex justify-center items-center p-8">
+            <ProgressSpinner />
+          </div>
+        ) : (
+          <MemberTable
+            members={members}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+
+        <AddMemberForm
+          onSubmit={(member) => {
+            handleAdd(member);
+            setIsAddingMember(false);
+          }}
+          onCancel={() => setIsAddingMember(false)}
+          visible={isAddingMember}
+        />
+
+        {editingMember && (
+          <EditMemberForm
+            member={editingMember}
+            onSave={handleSave}
+            onCancel={() => setEditingMember(null)}
+            visible={!!editingMember}
+          />
+        )}
+
+        <ConfirmDialog
+          visible={showVersionConflict}
+          onHide={() => setShowVersionConflict(false)}
+          message="This record has been modified by another user. Would you like to refresh and get the latest version?"
+          header="Version Conflict Detected"
+          icon="pi pi-exclamation-triangle"
+          accept={handleVersionConflict}
+          reject={() => setShowVersionConflict(false)}
+        />
+      </main>
+    </div>
   );
 }
