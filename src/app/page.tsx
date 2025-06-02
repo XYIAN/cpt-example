@@ -2,37 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { Message } from 'primereact/message';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 import SearchForm from '@/components/SearchForm';
 import MemberTable from '@/components/MemberTable';
 import EditMemberForm from '@/components/EditMemberForm';
 import AddMemberForm from '@/components/AddMemberForm';
 import { useToast } from '@/contexts/ToastContext';
-
-interface Member {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  homePhone: string | null;
-  mobilePhone: string | null;
-  address1: string | null;
-  address2: string | null;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-  zip4: string | null;
-  productName: string | null;
-  datePurchased: string | null;
-  paidAmount: number | null;
-  coveredWeeks: number | null;
-  lastStateWorked: string | null;
-}
+import type { Member } from '@/types/member';
 
 export default function Home() {
   const [members, setMembers] = useState<Member[]>([]);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [isAddingMember, setIsAddingMember] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showVersionConflict, setShowVersionConflict] = useState(false);
+  const [isAddingMember, setIsAddingMember] = useState(false);
   const toast = useToast();
 
   // Load all members when the component mounts
@@ -41,16 +26,28 @@ export default function Home() {
   }, []);
 
   const fetchMembers = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/members');
-      if (!response.ok) throw new Error('Failed to fetch members');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch members');
+      }
       const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid response format');
+      }
       setMembers(data);
       setError(null);
+      if (data.length === 0) {
+        toast.showInfo('No Members', 'No members found in the database.');
+      }
     } catch (error) {
       console.error('Error fetching members:', error);
       setError('Failed to fetch members. Please try again.');
       toast.showError('Failed to fetch members', 'Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,10 +67,10 @@ export default function Home() {
     paidAmountMax?: number;
     hasCoveredWeeks?: boolean;
   }) => {
+    setIsLoading(true);
     try {
       const queryParams = new URLSearchParams();
       
-      // Add all non-empty params to the query string
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           queryParams.append(key, value.toString());
@@ -95,16 +92,18 @@ export default function Home() {
       console.error('Error searching members:', error);
       setError('Failed to search members. Please try again.');
       toast.showError('Search Failed', 'Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleEdit = (member: Member) => {
     setEditingMember(member);
-    setIsAddingMember(false);
   };
 
   const handleSave = async (updatedMember: Member) => {
     try {
+      console.log('Sending to API:', updatedMember);
       const response = await fetch(`/api/members/${updatedMember.id}`, {
         method: 'PUT',
         headers: {
@@ -113,18 +112,35 @@ export default function Home() {
         body: JSON.stringify(updatedMember),
       });
 
-      if (!response.ok) throw new Error('Failed to update member');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log('API error response:', errorData);
+        
+        if (response.status === 409) {
+          if ('currentVersion' in errorData) {
+            // Version conflict
+            setShowVersionConflict(true);
+            return;
+          } else {
+            // Record is locked
+            toast.showError('Edit Failed', 'This record is currently being edited by another user. Please try again later.');
+            return;
+          }
+        }
+        throw new Error('Failed to update member');
+      }
 
+      const savedMember = await response.json();
       setMembers(prevMembers =>
         prevMembers.map(member =>
-          member.id === updatedMember.id ? updatedMember : member
+          member.id === savedMember.id ? savedMember : member
         )
       );
       setEditingMember(null);
       setError(null);
       toast.showSuccess(
         'Member Updated',
-        `Successfully updated ${updatedMember.firstName} ${updatedMember.lastName}.`
+        `Successfully updated ${savedMember.firstName} ${savedMember.lastName}.`
       );
     } catch (error) {
       console.error('Error updating member:', error);
@@ -133,7 +149,7 @@ export default function Home() {
     }
   };
 
-  const handleAdd = async (newMember: Omit<Member, 'id'>) => {
+  const handleAdd = async (newMember: Omit<Member, 'id' | 'isLocked' | 'lastModifiedBy' | 'createdAt' | 'updatedAt'>) => {
     try {
       const response = await fetch('/api/members', {
         method: 'POST',
@@ -147,7 +163,6 @@ export default function Home() {
 
       const addedMember = await response.json();
       setMembers(prevMembers => [...prevMembers, addedMember]);
-      setIsAddingMember(false);
       setError(null);
       toast.showInfo(
         'Member Added',
@@ -167,7 +182,13 @@ export default function Home() {
         method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('Failed to delete member');
+      if (!response.ok) {
+        if (response.status === 409) {
+          toast.showError('Delete Failed', 'This record is currently being edited by another user. Please try again later.');
+          return;
+        }
+        throw new Error('Failed to delete member');
+      }
 
       setMembers(prevMembers => prevMembers.filter(member => member.id !== memberId));
       setError(null);
@@ -184,54 +205,72 @@ export default function Home() {
     }
   };
 
-  return (
-    <main className="container mx-auto px-4 py-8">
-      {error && (
-        <Message 
-          severity="error" 
-          text={error}
-          className="mb-4 w-full"
-        />
-      )}
+  const handleVersionConflict = () => {
+    // Refresh the member data to get the latest version
+    fetchMembers();
+    setShowVersionConflict(false);
+    setEditingMember(null);
+  };
 
-      <SearchForm 
-        onSearch={handleSearch} 
-        onAddMember={() => {
-          setIsAddingMember(true);
-          setEditingMember(null);
+  return (
+    <div className="min-h-screen relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0"
+        style={{
+          backgroundImage: 'url(/cpt-photo.png)',
+          filter: 'brightness(0.3)',
         }}
       />
+      <main className="container mx-auto px-2 py-8 relative z-10">
+        <SearchForm 
+          onSearch={handleSearch} 
+          onAdd={() => setIsAddingMember(true)}
+        />
+        
+        {error && (
+          <Message severity="error" text={error} className="mb-4" />
+        )}
 
-      {isAddingMember ? (
-        <div className="mb-8">
-          <AddMemberForm
-            onSubmit={handleAdd}
-            onCancel={() => setIsAddingMember(false)}
+        {isLoading ? (
+          <div className="flex justify-center items-center p-8">
+            <ProgressSpinner />
+          </div>
+        ) : (
+          <MemberTable
+            members={members}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
-        </div>
-      ) : editingMember ? (
-        <div className="mb-8">
+        )}
+
+        <AddMemberForm
+          onSubmit={(member) => {
+            handleAdd(member);
+            setIsAddingMember(false);
+          }}
+          onCancel={() => setIsAddingMember(false)}
+          visible={isAddingMember}
+        />
+
+        {editingMember && (
           <EditMemberForm
             member={editingMember}
             onSave={handleSave}
             onCancel={() => setEditingMember(null)}
+            visible={!!editingMember}
           />
-        </div>
-      ) : (
-        <div>
-          {members.length > 0 ? (
-            <MemberTable 
-              members={members} 
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No members found matching your search criteria.
-            </div>
-          )}
-        </div>
-      )}
-    </main>
+        )}
+
+        <ConfirmDialog
+          visible={showVersionConflict}
+          onHide={() => setShowVersionConflict(false)}
+          message="This record has been modified by another user. Would you like to refresh and get the latest version?"
+          header="Version Conflict Detected"
+          icon="pi pi-exclamation-triangle"
+          accept={handleVersionConflict}
+          reject={() => setShowVersionConflict(false)}
+        />
+      </main>
+    </div>
   );
 }

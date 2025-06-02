@@ -127,7 +127,12 @@ async function main() {
     let count = 0;
     for (const member of allMembers) {
       await prisma.member.create({
-        data: member
+        data: {
+          ...member,
+          version: 1,
+          isLocked: false,
+          lastModifiedBy: null
+        }
       });
       count++;
       if (count % 100 === 0) {

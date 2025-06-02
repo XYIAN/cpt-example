@@ -1,74 +1,52 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { Card } from 'primereact/card';
+import { useState, FormEvent, memo } from 'react';
+import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
+import type { Member } from '@/types/member';
 
-interface Member {
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  homePhone: string | null;
-  mobilePhone: string | null;
-  address1: string | null;
-  address2: string | null;
-  city: string | null;
-  state: string | null;
-  zip: string | null;
-  zip4: string | null;
-  productName: string | null;
-  datePurchased: string | null;
-  paidAmount: number | null;
-  coveredWeeks: number | null;
-  lastStateWorked: string | null;
-}
+type NewMember = Omit<Member, 'id' | 'isLocked' | 'lastModifiedBy' | 'createdAt' | 'updatedAt'>;
 
 interface AddMemberFormProps {
-  onSubmit: (member: Member) => void;
+  onSubmit: (member: NewMember) => void;
   onCancel: () => void;
+  visible: boolean;
 }
 
-const emptyMember: Member = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  homePhone: '',
-  mobilePhone: '',
-  address1: '',
-  address2: '',
-  city: '',
-  state: '',
-  zip: '',
-  zip4: '',
-  productName: '',
-  datePurchased: '',
-  paidAmount: null,
-  coveredWeeks: null,
-  lastStateWorked: ''
-};
-
-export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps) {
-  const [formData, setFormData] = useState<Member>(emptyMember);
+function AddMemberForm({ onSubmit, onCancel, visible }: AddMemberFormProps) {
+  const [formData, setFormData] = useState<NewMember>({
+    firstName: '',
+    lastName: null,
+    email: null,
+    homePhone: null,
+    mobilePhone: null,
+    address1: null,
+    address2: null,
+    city: null,
+    state: null,
+    zip: null,
+    zip4: null,
+    productName: null,
+    datePurchased: null,
+    paidAmount: null,
+    coveredWeeks: null,
+    lastStateWorked: null,
+    version: 1
+  });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Convert empty strings to null before submitting
-    const submissionData = Object.entries(formData).reduce<Partial<Member>>((acc, [key, value]) => {
-      const typedKey = key as keyof Member;
-      acc[typedKey] = value === '' ? null : value;
-      return acc;
-    }, {}) as Member;
-    onSubmit(submissionData);
+    onSubmit(formData);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value || null
     }));
   };
 
@@ -86,15 +64,24 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
     }));
   };
 
-  const header = (
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-semibold m-0">Add New Member</h2>
+  const footerContent = (
+    <div>
+      <Button label="Cancel" icon="pi pi-times" onClick={onCancel} className="p-button-text" />
+      <Button label="Save" icon="pi pi-check" onClick={handleSubmit} autoFocus />
     </div>
   );
 
   return (
-    <Card header={header}>
-      <form onSubmit={handleSubmit} className="p-fluid grid grid-cols-1 md:grid-cols-2 gap-4">
+    <Dialog
+      header="Add New Member"
+      visible={visible}
+      style={{ width: '90vw', maxWidth: '800px' }}
+      onHide={onCancel}
+      footer={footerContent}
+      modal
+      className="p-fluid"
+    >
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
         <div className="field">
           <span className="p-float-label">
             <InputText
@@ -113,9 +100,8 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             <InputText
               id="lastName"
               name="lastName"
-              value={formData.lastName}
+              value={formData.lastName || ''}
               onChange={handleTextChange}
-              required
             />
             <label htmlFor="lastName">Last Name</label>
           </span>
@@ -247,9 +233,8 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             <Calendar
               id="datePurchased"
               value={formData.datePurchased ? new Date(formData.datePurchased) : null}
-              onChange={(e) => handleDateChange(e.value as Date)}
+              onChange={(e) => handleDateChange(e.value as Date | null)}
               dateFormat="yy-mm-dd"
-              showIcon
             />
             <label htmlFor="datePurchased">Date Purchased</label>
           </span>
@@ -259,12 +244,11 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
           <span className="p-float-label">
             <InputNumber
               id="paidAmount"
-              value={formData.paidAmount ?? undefined}
+              value={formData.paidAmount || null}
               onValueChange={(e) => handleNumberChange('paidAmount', e)}
-              mode="currency"
-              currency="USD"
-              locale="en-US"
+              mode="decimal"
               minFractionDigits={2}
+              maxFractionDigits={2}
             />
             <label htmlFor="paidAmount">Paid Amount</label>
           </span>
@@ -274,7 +258,7 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
           <span className="p-float-label">
             <InputNumber
               id="coveredWeeks"
-              value={formData.coveredWeeks ?? undefined}
+              value={formData.coveredWeeks || null}
               onValueChange={(e) => handleNumberChange('coveredWeeks', e)}
             />
             <label htmlFor="coveredWeeks">Covered Weeks</label>
@@ -292,22 +276,9 @@ export default function AddMemberForm({ onSubmit, onCancel }: AddMemberFormProps
             <label htmlFor="lastStateWorked">Last State Worked</label>
           </span>
         </div>
-
-        <div className="col-span-2 flex justify-end gap-2 mt-4">
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            outlined
-            onClick={onCancel}
-          />
-          <Button
-            type="submit"
-            label="Add Member"
-            severity="success"
-          />
-        </div>
       </form>
-    </Card>
+    </Dialog>
   );
-} 
+}
+
+export default memo(AddMemberForm); 

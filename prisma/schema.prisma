@@ -15,7 +15,7 @@ datasource db {
 model Member {
   id            Int      @id @default(autoincrement())
   firstName     String
-  lastName      String
+  lastName      String?  // Making lastName optional
   email         String?
   homePhone     String?
   mobilePhone   String?
@@ -32,6 +32,9 @@ model Member {
   lastStateWorked String? // From Members2.csv
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  version       Int      @default(1)  // Version number for optimistic locking
+  lastModifiedBy String? // Track who last modified the record
+  isLocked      Boolean @default(false) // Lock flag for concurrent access control
 
   @@index([lastName])  // Index for faster lastName searches
   @@index([email])     // Index for faster email searches

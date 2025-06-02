@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../lib/prisma';
 import { z } from 'zod';
 
+// Schema for creating new members (without version control fields)
 const MemberInput = z.object({
   firstName: z.string(),
-  lastName: z.string(),
+  lastName: z.string().optional().nullable(),
   email: z.string().optional().nullable(),
   homePhone: z.string().optional().nullable(),
   mobilePhone: z.string().optional().nullable(),
@@ -23,14 +24,28 @@ const MemberInput = z.object({
 
 export async function GET() {
   try {
+    console.log('Fetching all members...');
     const members = await prisma.member.findMany({
       orderBy: {
         lastName: 'asc',
       },
     });
+    console.log(`Successfully fetched ${members.length} members`);
+    
+    if (!members || members.length === 0) {
+      console.log('No members found in database');
+      return NextResponse.json([]);
+    }
+    
     return NextResponse.json(members);
   } catch (error) {
     console.error('Error fetching members:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+      if (error instanceof Error && 'code' in error) {
+        console.error('Error code:', (error as { code: string }).code);
+      }
+    }
     return NextResponse.json(
       { error: 'Failed to fetch members' },
       { status: 500 }
@@ -47,6 +62,7 @@ export async function POST(request: Request) {
       data: {
         ...validatedData,
         datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
+        // Version control fields are handled by schema defaults
       },
     });
     return NextResponse.json(member);
