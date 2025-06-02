@@ -14,10 +14,10 @@ import type { Member } from '@/types/member';
 export default function Home() {
   const [members, setMembers] = useState<Member[]>([]);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [isAddingMember, setIsAddingMember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showVersionConflict, setShowVersionConflict] = useState(false);
+  const [isAddingMember, setIsAddingMember] = useState(false);
   const toast = useToast();
 
   // Load all members when the component mounts
@@ -99,7 +99,6 @@ export default function Home() {
 
   const handleEdit = (member: Member) => {
     setEditingMember(member);
-    setIsAddingMember(false);
   };
 
   const handleSave = async (updatedMember: Member) => {
@@ -164,7 +163,6 @@ export default function Home() {
 
       const addedMember = await response.json();
       setMembers(prevMembers => [...prevMembers, addedMember]);
-      setIsAddingMember(false);
       setError(null);
       toast.showInfo(
         'Member Added',
@@ -216,7 +214,10 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-2 py-8">
-      <SearchForm onSearch={handleSearch} onAddMember={() => setIsAddingMember(true)} />
+      <SearchForm 
+        onSearch={handleSearch} 
+        onAdd={() => setIsAddingMember(true)}
+      />
       
       {error && (
         <Message severity="error" text={error} className="mb-4" />
@@ -235,7 +236,10 @@ export default function Home() {
       )}
 
       <AddMemberForm
-        onSubmit={handleAdd}
+        onSubmit={(member) => {
+          handleAdd(member);
+          setIsAddingMember(false);
+        }}
         onCancel={() => setIsAddingMember(false)}
         visible={isAddingMember}
       />

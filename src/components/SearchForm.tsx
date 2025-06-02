@@ -30,10 +30,10 @@ interface SearchFormProps {
     paidAmountMax?: number;
     hasCoveredWeeks?: boolean;
   }) => void;
-  onAddMember: () => void;
+  onAdd?: () => void;
 }
 
-export default function SearchForm({ onSearch, onAddMember }: SearchFormProps) {
+export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
   // State for showing advanced search
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -327,12 +327,16 @@ export default function SearchForm({ onSearch, onAddMember }: SearchFormProps) {
                   tooltip="Clear Search"
                 />
               </div>
-              <Button
-                label="Add New Member"
-                icon="pi pi-plus"
-                severity="success"
-                onClick={onAddMember}
-              />
+              <div>
+                {onAdd && (
+                  <Button
+                    label="Add Member"
+                    icon="pi pi-plus"
+                    severity="success"
+                    onClick={onAdd}
+                  />
+                )}
+              </div>
             </div>
           </form>
         </Fieldset>

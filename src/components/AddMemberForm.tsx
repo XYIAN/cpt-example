@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, memo } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
@@ -16,7 +16,7 @@ interface AddMemberFormProps {
   visible: boolean;
 }
 
-export default function AddMemberForm({ onSubmit, onCancel, visible }: AddMemberFormProps) {
+function AddMemberForm({ onSubmit, onCancel, visible }: AddMemberFormProps) {
   const [formData, setFormData] = useState<NewMember>({
     firstName: '',
     lastName: null,
@@ -279,4 +279,6 @@ export default function AddMemberForm({ onSubmit, onCancel, visible }: AddMember
       </form>
     </Dialog>
   );
-} 
+}
+
+export default memo(AddMemberForm); 
