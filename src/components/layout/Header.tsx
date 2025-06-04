@@ -3,8 +3,11 @@
 import { Toolbar } from 'primereact/toolbar';
 import { Image } from 'primereact/image';
 import { Button } from 'primereact/button';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function Header() {
+  const { currentTheme } = useTheme();
+
   const startContent = (
     <div className="flex items-center gap-4">
       <Image
@@ -20,8 +23,10 @@ export default function Header() {
         }}
       />
       <div>
-        <h1 className="text-2xl font-bold m-0">CPT Group</h1>
-        <p className="text-sm opacity-80 mt-1">
+        <h1 className={`text-2xl font-bold m-0 ${currentTheme.isDark ? 'text-primary' : 'text-primary-900'}`}>
+          CPT Group
+        </h1>
+        <p className={`text-sm mt-1 ${currentTheme.isDark ? 'text-surface-400' : 'text-surface-600'}`}>
           Class Action Lawsuit Member Management
         </p>
       </div>

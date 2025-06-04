@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Fieldset } from 'primereact/fieldset';
@@ -9,7 +9,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Calendar } from 'primereact/calendar';
 import { SplitButton } from 'primereact/splitbutton';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import Header from './Header';
+import Header from '@/components/layout/Header';
 
 interface SearchFormProps {
   onSearch: (params: {

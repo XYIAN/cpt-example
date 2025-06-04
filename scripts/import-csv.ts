@@ -1,53 +1,31 @@
-import { parse } from 'csv-parse';
 import fs from 'fs';
 import path from 'path';
-import prisma from '../lib/prisma';
+import { parse } from 'csv-parse';
+import { prisma } from '../src/lib/prisma';
+import {
+  cleanRequiredString,
+  cleanOptionalString,
+  cleanNumber,
+  cleanDate
+} from '../src/utils/dataCleaners';
 
-type CsvRecord = {
-  LastName: string;
+interface CsvRecord {
   FirstName: string;
-  Address1: string;
-  Address2: string;
-  City: string;
-  State: string;
-  Zip: string;
-  Zip4: string;
-  Email: string;
-  HomePhone: string;
-  MobilePhone: string;
+  LastName: string;
+  Email?: string;
+  HomePhone?: string;
+  MobilePhone?: string;
+  Address1?: string;
+  Address2?: string;
+  City?: string;
+  State?: string;
+  Zip?: string;
+  Zip4?: string;
   ProductName?: string;
   DatePurchased?: string;
   PaidAmount?: string;
   CoveredWeeks?: string;
   LastStateWorked?: string;
-};
-
-function cleanRequiredString(value: string | undefined | null): string {
-  if (!value) return '';
-  const trimmed = value.trim();
-  return trimmed === '' ? '' : trimmed;
-}
-
-function cleanOptionalString(value: string | undefined | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  return trimmed === '' ? null : trimmed;
-}
-
-function cleanNumber(value: string | undefined | null): number | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (trimmed === '') return null;
-  const num = parseFloat(trimmed);
-  return isNaN(num) ? null : num;
-}
-
-function cleanDate(value: string | undefined | null): Date | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (trimmed === '') return null;
-  const date = new Date(trimmed);
-  return isNaN(date.getTime()) ? null : date;
 }
 
 async function importCsvFile(filePath: string) {
@@ -92,7 +70,10 @@ async function main() {
       datePurchased: cleanDate(record.DatePurchased),
       paidAmount: cleanNumber(record.PaidAmount),
       coveredWeeks: null,
-      lastStateWorked: null
+      lastStateWorked: null,
+      version: 1,
+      isLocked: false,
+      lastModifiedBy: null
     }));
 
     // Process and insert Members2 data
@@ -112,7 +93,10 @@ async function main() {
       datePurchased: null,
       paidAmount: null,
       coveredWeeks: cleanNumber(record.CoveredWeeks),
-      lastStateWorked: cleanOptionalString(record.LastStateWorked)
+      lastStateWorked: cleanOptionalString(record.LastStateWorked),
+      version: 1,
+      isLocked: false,
+      lastModifiedBy: null
     }));
 
     // Combine all members
@@ -127,12 +111,7 @@ async function main() {
     let count = 0;
     for (const member of allMembers) {
       await prisma.member.create({
-        data: {
-          ...member,
-          version: 1,
-          isLocked: false,
-          lastModifiedBy: null
-        }
+        data: member
       });
       count++;
       if (count % 100 === 0) {

@@ -4,25 +4,7 @@
 @tailwind utilities;
 
 
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-} */
-/* 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #15178a99;
-    --foreground: #ededed;
-  }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
 
 :root {
   --foreground-rgb: 255, 255, 255;
@@ -31,73 +13,88 @@ body {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
   background: transparent;
 }
 
-/* Make PrimeReact components more visible on dark background */
+/* Theme-aware components with opacity */
 .p-component {
   --primary-color: #6366f1;
   --primary-color-text: #ffffff;
 }
 
+/* Toolbar (Header) styling */
+.p-toolbar {
+  background: color-mix(in srgb, var(--surface-overlay) 35%, transparent) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* DataTable styling */
 .p-datatable {
-  background: rgba(0, 0, 0, 0.7) !important;
+  background: color-mix(in srgb, var(--surface-overlay) 30%, transparent) !important;
+  backdrop-filter: blur(12px);
 }
 
 .p-datatable .p-datatable-thead > tr > th {
-  background: rgba(0, 0, 0, 0.5) !important;
-  color: #ffffff !important;
+  background: color-mix(in srgb, var(--surface-section) 35%, transparent) !important;
+  color: var(--text-color);
+  backdrop-filter: blur(10px);
 }
 
 .p-datatable .p-datatable-tbody > tr {
-  background: transparent !important;
-  color: #ffffff !important;
+  background: transparent;
+  color: var(--text-color);
 }
 
 .p-datatable .p-datatable-tbody > tr:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: color-mix(in srgb, var(--surface-hover) 40%, transparent) !important;
 }
 
+/* Other components with matching opacity */
 .p-fieldset {
-  background: rgba(0, 0, 0, 0.7) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: color-mix(in srgb, var(--surface-overlay) 35%, transparent);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(12px);
 }
 
 .p-fieldset .p-fieldset-legend {
-  background: rgba(0, 0, 0, 0.8) !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: color-mix(in srgb, var(--surface-section) 35%, transparent);
+  color: var(--text-color);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(10px);
 }
 
 .p-float-label label {
-  color: #ffffff !important;
+  color: var(--text-color);
 }
 
 .p-inputtext {
-  background: rgba(0, 0, 0, 0.5) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
+  background: color-mix(in srgb, var(--surface-overlay) 35%, transparent) !important;
+  border: 1px solid var(--surface-border);
+  color: var(--text-color);
+  backdrop-filter: blur(10px);
 }
 
 .p-inputtext:enabled:hover {
-  border-color: var(--primary-color) !important;
+  border-color: var(--primary-color);
 }
 
 .p-dialog {
-  background: rgba(0, 0, 0, 0.9) !important;
+  background: color-mix(in srgb, var(--surface-overlay) 40%, transparent);
+  backdrop-filter: blur(14px);
 }
 
 .p-dialog .p-dialog-header {
-  background: rgba(0, 0, 0, 0.8) !important;
-  color: #ffffff !important;
+  background: color-mix(in srgb, var(--surface-section) 35%, transparent);
+  color: var(--text-color);
+  backdrop-filter: blur(10px);
 }
 
 .p-dialog .p-dialog-content {
-  background: transparent !important;
-  color: #ffffff !important;
+  background: color-mix(in srgb, var(--surface-overlay) 35%, transparent);
+  color: var(--text-color);
 }
 
 .p-dialog .p-dialog-footer {
-  background: rgba(0, 0, 0, 0.8) !important;
+  background: color-mix(in srgb, var(--surface-section) 35%, transparent);
+  backdrop-filter: blur(10px);
 }

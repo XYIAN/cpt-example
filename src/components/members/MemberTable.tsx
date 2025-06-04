@@ -4,6 +4,8 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { ConfirmDialog } from 'primereact/confirmdialog';
+import { ProgressSpinner } from 'primereact/progressspinner';
+import { BlockUI } from 'primereact/blockui';
 import { useState } from 'react';
 import type { Member } from '@/types/member';
 
@@ -11,9 +13,10 @@ interface MemberTableProps {
   members: Member[];
   onEdit: (member: Member) => void;
   onDelete: (memberId: number) => void;
+  deletingMemberId: number | null;
 }
 
-export default function MemberTable({ members, onEdit, onDelete }: MemberTableProps) {
+export default function MemberTable({ members, onEdit, onDelete, deletingMemberId }: MemberTableProps) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
 
@@ -38,8 +41,8 @@ export default function MemberTable({ members, onEdit, onDelete }: MemberTablePr
     return (
       <div>
         <div>{rowData.email}</div>
-        {rowData.mobilePhone && <div className="text-sm text-gray-500">M: {rowData.mobilePhone}</div>}
-        {rowData.homePhone && <div className="text-sm text-gray-500">H: {rowData.homePhone}</div>}
+        {rowData.mobilePhone && <div className="text-sm">M: {rowData.mobilePhone}</div>}
+        {rowData.homePhone && <div className="text-sm">H: {rowData.homePhone}</div>}
       </div>
     );
   };
@@ -49,7 +52,7 @@ export default function MemberTable({ members, onEdit, onDelete }: MemberTablePr
       <div>
         <div>{rowData.address1}</div>
         {rowData.address2 && <div>{rowData.address2}</div>}
-        <div className="text-sm text-gray-500">
+        <div className="text-sm">
           {rowData.city}, {rowData.state} {rowData.zip}{rowData.zip4 && `-${rowData.zip4}`}
         </div>
       </div>
@@ -57,30 +60,44 @@ export default function MemberTable({ members, onEdit, onDelete }: MemberTablePr
   };
 
   const actionsBodyTemplate = (rowData: Member) => {
+    const isDeleting = deletingMemberId === rowData.id;
+
     return (
-      <div className="flex gap-2 justify-end">
-        <Button
-          icon="pi pi-pencil"
-          rounded
-          text
-          severity="info"
-          onClick={() => onEdit(rowData)}
-          tooltip="Edit Member"
-        />
-        <Button
-          icon="pi pi-trash"
-          rounded
-          text
-          severity="danger"
-          onClick={() => handleDeleteClick(rowData)}
-          tooltip="Delete Member"
-        />
+      <div className="flex gap-2 justify-end items-center">
+        {isDeleting ? (
+          <ProgressSpinner style={{ width: '20px', height: '20px' }} strokeWidth="4" />
+        ) : (
+          <>
+            <Button
+              icon="pi pi-pencil"
+              rounded
+              text
+              severity="info"
+              onClick={() => onEdit(rowData)}
+              tooltip="Edit Member"
+            />
+            <Button
+              icon="pi pi-trash"
+              rounded
+              text
+              severity="danger"
+              onClick={() => handleDeleteClick(rowData)}
+              tooltip="Delete Member"
+            />
+          </>
+        )}
       </div>
     );
   };
 
+  const LoadingOverlay = () => (
+    <div className="flex justify-center items-center p-4">
+      <ProgressSpinner strokeWidth="4" style={{ width: '50px', height: '50px' }} />
+    </div>
+  );
+
   return (
-    <>
+    <BlockUI blocked={!!deletingMemberId} template={<LoadingOverlay />}>
       <DataTable
         value={members}
         tableStyle={{ minWidth: '50rem' }}
@@ -111,6 +128,6 @@ export default function MemberTable({ members, onEdit, onDelete }: MemberTablePr
         accept={handleDeleteConfirm}
         reject={() => setDeleteConfirmOpen(false)}
       />
-    </>
+    </BlockUI>
   );
 } 

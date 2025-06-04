@@ -4,12 +4,15 @@ import { useState, useEffect } from 'react';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import SearchForm from '@/components/SearchForm';
-import MemberTable from '@/components/MemberTable';
-import EditMemberForm from '@/components/EditMemberForm';
-import AddMemberForm from '@/components/AddMemberForm';
+import { BlockUI } from 'primereact/blockui';
+import SearchForm from '@/components/forms/SearchForm';
+import MemberTable from '@/components/members/MemberTable';
+import { EditMemberForm } from '@/components/forms/EditMemberForm';
+import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { useToast } from '@/contexts/ToastContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { Member } from '@/types/member';
+import type { MemberFormData } from '@/types/member';
 
 export default function Home() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -18,7 +21,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [showVersionConflict, setShowVersionConflict] = useState(false);
   const [isAddingMember, setIsAddingMember] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeletingMember, setIsDeletingMember] = useState<number | null>(null);
   const toast = useToast();
+  const { backgroundImage } = useTheme();
 
   // Load all members when the component mounts
   useEffect(() => {
@@ -101,10 +107,16 @@ export default function Home() {
     setEditingMember(member);
   };
 
-  const handleSave = async (updatedMember: Member) => {
+  const handleSave = async (formData: MemberFormData): Promise<void> => {
+    if (!editingMember) return;
+    setIsSubmitting(true);
     try {
-      console.log('Sending to API:', updatedMember);
-      const response = await fetch(`/api/members/${updatedMember.id}`, {
+      const updatedMember = {
+        ...editingMember,
+        ...formData
+      };
+
+      const response = await fetch(`/api/members/${editingMember.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -114,15 +126,11 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.log('API error response:', errorData);
-        
         if (response.status === 409) {
           if ('currentVersion' in errorData) {
-            // Version conflict
             setShowVersionConflict(true);
             return;
           } else {
-            // Record is locked
             toast.showError('Edit Failed', 'This record is currently being edited by another user. Please try again later.');
             return;
           }
@@ -146,17 +154,20 @@ export default function Home() {
       console.error('Error updating member:', error);
       setError('Failed to update member. Please try again.');
       toast.showError('Update Failed', 'Please try again later.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleAdd = async (newMember: Omit<Member, 'id' | 'isLocked' | 'lastModifiedBy' | 'createdAt' | 'updatedAt'>) => {
+  const handleAdd = async (formData: MemberFormData): Promise<void> => {
+    setIsSubmitting(true);
     try {
       const response = await fetch('/api/members', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newMember),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) throw new Error('Failed to add member');
@@ -164,7 +175,8 @@ export default function Home() {
       const addedMember = await response.json();
       setMembers(prevMembers => [...prevMembers, addedMember]);
       setError(null);
-      toast.showInfo(
+      setIsAddingMember(false);
+      toast.showSuccess(
         'Member Added',
         `Successfully added ${addedMember.firstName} ${addedMember.lastName} to the system.`
       );
@@ -172,10 +184,13 @@ export default function Home() {
       console.error('Error adding member:', error);
       setError('Failed to add member. Please try again.');
       toast.showError('Add Failed', 'Please try again later.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (memberId: number) => {
+    setIsDeletingMember(memberId);
     try {
       const memberToDelete = members.find(m => m.id === memberId);
       const response = await fetch(`/api/members/${memberId}`, {
@@ -202,6 +217,8 @@ export default function Home() {
       console.error('Error deleting member:', error);
       setError('Failed to delete member. Please try again.');
       toast.showError('Delete Failed', 'Please try again later.');
+    } finally {
+      setIsDeletingMember(null);
     }
   };
 
@@ -212,65 +229,67 @@ export default function Home() {
     setEditingMember(null);
   };
 
+  const LoadingOverlay = () => (
+    <div className="flex justify-center items-center p-4">
+      <ProgressSpinner strokeWidth="4" style={{ width: '50px', height: '50px' }} />
+    </div>
+  );
+
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative flex-1 pb-16">
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0"
         style={{
-          backgroundImage: 'url(/cpt-photo.png)',
+          backgroundImage: `url(${backgroundImage})`,
           filter: 'brightness(0.3)',
         }}
       />
-      <main className="container mx-auto px-2 py-8 relative z-10">
-        <SearchForm 
-          onSearch={handleSearch} 
-          onAdd={() => setIsAddingMember(true)}
-        />
-        
-        {error && (
-          <Message severity="error" text={error} className="mb-4" />
-        )}
+      <BlockUI blocked={isLoading} template={<LoadingOverlay />}>
+        <main className="container mx-auto px-2 py-4 relative z-10">
+          <SearchForm 
+            onSearch={handleSearch} 
+            onAdd={() => setIsAddingMember(true)}
+          />
+          
+          {error && (
+            <Message severity="error" text={error} className="mb-4" />
+          )}
 
-        {isLoading ? (
-          <div className="flex justify-center items-center p-8">
-            <ProgressSpinner />
-          </div>
-        ) : (
           <MemberTable
             members={members}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            deletingMemberId={isDeletingMember}
           />
-        )}
 
-        <AddMemberForm
-          onSubmit={(member) => {
-            handleAdd(member);
-            setIsAddingMember(false);
-          }}
-          onCancel={() => setIsAddingMember(false)}
-          visible={isAddingMember}
-        />
-
-        {editingMember && (
-          <EditMemberForm
-            member={editingMember}
-            onSave={handleSave}
-            onCancel={() => setEditingMember(null)}
-            visible={!!editingMember}
+          <AddMemberForm
+            onSubmit={handleAdd}
+            onCancel={() => setIsAddingMember(false)}
+            isSubmitting={isSubmitting}
+            visible={isAddingMember}
           />
-        )}
 
-        <ConfirmDialog
-          visible={showVersionConflict}
-          onHide={() => setShowVersionConflict(false)}
-          message="This record has been modified by another user. Would you like to refresh and get the latest version?"
-          header="Version Conflict Detected"
-          icon="pi pi-exclamation-triangle"
-          accept={handleVersionConflict}
-          reject={() => setShowVersionConflict(false)}
-        />
-      </main>
+          {editingMember && (
+            <EditMemberForm
+              member={editingMember}
+              onSubmit={handleSave}
+              onCancel={() => setEditingMember(null)}
+              isSubmitting={isSubmitting}
+              visible={true}
+            />
+          )}
+
+          <ConfirmDialog
+            visible={showVersionConflict}
+            onHide={() => setShowVersionConflict(false)}
+            message="This record has been modified by another user. Would you like to refresh and get the latest version?"
+            header="Version Conflict Detected"
+            icon="pi pi-exclamation-triangle"
+            accept={handleVersionConflict}
+            reject={() => setShowVersionConflict(false)}
+          />
+        </main>
+      </BlockUI>
     </div>
   );
 }
