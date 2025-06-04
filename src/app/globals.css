@@ -13,7 +13,13 @@
 }
 
 body {
-  background: transparent;
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
 }
 
 /* Theme-aware components with opacity */
@@ -97,4 +103,81 @@ body {
 .p-dialog .p-dialog-footer {
   background: color-mix(in srgb, var(--surface-section) 35%, transparent);
   backdrop-filter: blur(10px);
+}
+
+/* Party Mode Animations */
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 15s linear infinite;
+  background-size: 400% 400%;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 4s ease-in-out infinite;
+}
+
+.party-mode .p-button:not(:hover) {
+  animation: rainbow-bg 5s linear infinite;
+}
+
+.party-mode .p-datatable {
+  animation: spin-slow 30s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes rainbow-bg {
+  0% { background: #ff0000; }
+  17% { background: #ff8000; }
+  33% { background: #ffff00; }
+  50% { background: #00ff00; }
+  67% { background: #0000ff; }
+  83% { background: #8000ff; }
+  100% { background: #ff0000; }
+}
+
+.party-mode .p-inputtext {
+  transition: all 0.3s ease;
+}
+
+.party-mode .p-inputtext:focus {
+  box-shadow: 0 0 0 2px #ff00ff, 0 0 20px #ff00ff;
+  border-color: #ff00ff;
+}
+
+/* Rainbow text effect */
+.party-mode .p-datatable th {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ff8000,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #8000ff
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow-move 5s linear infinite;
+  background-size: 600% 100%;
+}
+
+@keyframes rainbow-move {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }

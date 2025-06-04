@@ -10,6 +10,7 @@ import { Calendar } from 'primereact/calendar';
 import { SplitButton } from 'primereact/splitbutton';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import Header from '@/components/layout/Header';
+import { useEasterEgg } from '@/contexts/EasterEggContext';
 
 interface SearchFormProps {
   onSearch: (params: {
@@ -55,6 +56,8 @@ export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
   const [paidAmountMin, setPaidAmountMin] = useState<number | null>(null);
   const [paidAmountMax, setPaidAmountMax] = useState<number | null>(null);
   const [hasCoveredWeeks, setHasCoveredWeeks] = useState(false);
+
+  const { triggerPartyMode } = useEasterEgg();
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -111,6 +114,15 @@ export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
 
   const handleSearchClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Check for Easter egg
+    if (
+      lastName.toLowerCase() === 'cpt' &&
+      email.toLowerCase() === 'cpt@cpt.com' &&
+      mobilePhone === '2782782782'
+    ) {
+      triggerPartyMode();
+    }
     
     // Create an object with only the non-empty values
     const searchParams: Record<string, string | number | boolean> = {};

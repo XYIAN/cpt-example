@@ -8,6 +8,7 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { ToastProvider } from "@/contexts/ToastContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { EasterEggProvider } from "@/contexts/EasterEggContext";
 import Footer from "@/components/layout/Footer";
 
 const geist = Geist({
@@ -41,8 +42,10 @@ export default function RootLayout({
         <PrimeReactProvider>
           <ThemeProvider>
             <ToastProvider>
-              {children}
-              <Footer />
+              <EasterEggProvider>
+                {children}
+                <Footer />
+              </EasterEggProvider>
             </ToastProvider>
           </ThemeProvider>
         </PrimeReactProvider>

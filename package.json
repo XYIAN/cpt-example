@@ -17,6 +17,7 @@
     "primereact": "^10.9.5",
     "prisma": "5.18.0",
     "react": "^19.0.0",
+    "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.57.0",
     "zod": "^3.25.46"
