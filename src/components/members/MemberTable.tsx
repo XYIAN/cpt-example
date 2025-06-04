@@ -1,26 +1,26 @@
 'use client';
 
+import React, { useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { BlockUI } from 'primereact/blockui';
-import { useState } from 'react';
-import type { Member } from '@/types/member';
+import type { SerializedMember } from '@/types/member';
 
 interface MemberTableProps {
-  members: Member[];
-  onEdit: (member: Member) => void;
+  members: SerializedMember[];
+  onEdit: (member: SerializedMember) => void;
   onDelete: (memberId: number) => void;
   deletingMemberId: number | null;
 }
 
 export default function MemberTable({ members, onEdit, onDelete, deletingMemberId }: MemberTableProps) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [memberToDelete, setMemberToDelete] = useState<SerializedMember | null>(null);
 
-  const handleDeleteClick = (member: Member) => {
+  const handleDeleteClick = (member: SerializedMember) => {
     setMemberToDelete(member);
     setDeleteConfirmOpen(true);
   };
@@ -33,11 +33,11 @@ export default function MemberTable({ members, onEdit, onDelete, deletingMemberI
     }
   };
 
-  const nameBodyTemplate = (rowData: Member) => {
+  const nameBodyTemplate = (rowData: SerializedMember) => {
     return `${rowData.firstName} ${rowData.lastName}`;
   };
 
-  const contactBodyTemplate = (rowData: Member) => {
+  const contactBodyTemplate = (rowData: SerializedMember) => {
     return (
       <div>
         <div>{rowData.email}</div>
@@ -47,7 +47,7 @@ export default function MemberTable({ members, onEdit, onDelete, deletingMemberI
     );
   };
 
-  const addressBodyTemplate = (rowData: Member) => {
+  const addressBodyTemplate = (rowData: SerializedMember) => {
     return (
       <div>
         <div>{rowData.address1}</div>
@@ -59,7 +59,7 @@ export default function MemberTable({ members, onEdit, onDelete, deletingMemberI
     );
   };
 
-  const actionsBodyTemplate = (rowData: Member) => {
+  const actionsBodyTemplate = (rowData: SerializedMember) => {
     const isDeleting = deletingMemberId === rowData.id;
 
     return (
@@ -98,6 +98,20 @@ export default function MemberTable({ members, onEdit, onDelete, deletingMemberI
 
   return (
     <BlockUI blocked={!!deletingMemberId} template={<LoadingOverlay />}>
+      <ConfirmDialog
+        visible={deleteConfirmOpen}
+        onHide={() => setDeleteConfirmOpen(false)}
+        message={memberToDelete ? `Are you sure you want to delete ${memberToDelete.firstName} ${memberToDelete.lastName}? This action cannot be undone.` : ''}
+        header="Confirm Delete"
+        icon="pi pi-exclamation-triangle"
+        accept={handleDeleteConfirm}
+        reject={() => setDeleteConfirmOpen(false)}
+        acceptLabel="Yes, Delete"
+        rejectLabel="No, Cancel"
+        acceptIcon="pi pi-trash"
+        rejectIcon="pi pi-times"
+        acceptClassName="p-button-danger"
+      />
       <DataTable
         value={members}
         tableStyle={{ minWidth: '50rem' }}
@@ -115,19 +129,8 @@ export default function MemberTable({ members, onEdit, onDelete, deletingMemberI
           header="Actions"
           body={actionsBodyTemplate}
           style={{ width: '100px' }}
-          alignHeader="center"
         />
       </DataTable>
-
-      <ConfirmDialog
-        visible={deleteConfirmOpen}
-        onHide={() => setDeleteConfirmOpen(false)}
-        message={`Are you sure you want to delete ${memberToDelete?.firstName} ${memberToDelete?.lastName}?`}
-        header="Confirm Delete"
-        icon="pi pi-exclamation-triangle"
-        accept={handleDeleteConfirm}
-        reject={() => setDeleteConfirmOpen(false)}
-      />
     </BlockUI>
   );
 } 

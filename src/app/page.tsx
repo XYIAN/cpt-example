@@ -11,12 +11,11 @@ import { EditMemberForm } from '@/components/forms/EditMemberForm';
 import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { useToast } from '@/contexts/ToastContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import type { Member } from '@/types/member';
-import type { MemberFormData } from '@/types/member';
+import type { SerializedMember, MemberFormData } from '@/types/member';
 
 export default function Home() {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [members, setMembers] = useState<SerializedMember[]>([]);
+  const [editingMember, setEditingMember] = useState<SerializedMember | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showVersionConflict, setShowVersionConflict] = useState(false);
@@ -35,60 +34,27 @@ export default function Home() {
     setIsLoading(true);
     try {
       const response = await fetch('/api/members');
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch members');
-      }
+      if (!response.ok) throw new Error('Failed to fetch members');
       const data = await response.json();
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid response format');
-      }
       setMembers(data);
       setError(null);
-      if (data.length === 0) {
-        toast.showInfo('No Members', 'No members found in the database.');
-      }
     } catch (error) {
       console.error('Error fetching members:', error);
-      setError('Failed to fetch members. Please try again.');
-      toast.showError('Failed to fetch members', 'Please try again later.');
+      setError('Failed to load members. Please try again.');
+      toast.showError('Load Failed', 'Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSearch = async (params: {
-    lastName?: string;
-    email?: string;
-    mobilePhone?: string;
-    firstName?: string;
-    homePhone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    zip?: string;
-    productName?: string;
-    datePurchased?: string;
-    paidAmountMin?: number;
-    paidAmountMax?: number;
-    hasCoveredWeeks?: boolean;
-  }) => {
+  const handleSearch = async (searchParams: URLSearchParams) => {
     setIsLoading(true);
     try {
-      const queryParams = new URLSearchParams();
-      
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          queryParams.append(key, value.toString());
-        }
-      });
-
-      const response = await fetch(`/api/members/search?${queryParams}`);
+      const response = await fetch(`/api/members/search?${searchParams}`);
       if (!response.ok) throw new Error('Failed to search members');
       const data = await response.json();
       setMembers(data);
       setError(null);
-
       if (data.length === 0) {
         toast.showInfo('No Results', 'No members found matching your search criteria.');
       } else {
@@ -103,18 +69,20 @@ export default function Home() {
     }
   };
 
-  const handleEdit = (member: Member) => {
+  const handleEdit = (member: SerializedMember) => {
     setEditingMember(member);
   };
 
   const handleSave = async (formData: MemberFormData): Promise<void> => {
     if (!editingMember) return;
+    console.log('handleSave called with formData:', formData);
     setIsSubmitting(true);
     try {
       const updatedMember = {
         ...editingMember,
         ...formData
       };
+      console.log('Sending updated member to API:', updatedMember);
 
       const response = await fetch(`/api/members/${editingMember.id}`, {
         method: 'PUT',

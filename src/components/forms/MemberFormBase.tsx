@@ -1,28 +1,37 @@
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { Member } from '@prisma/client';
 import { useForm, Controller } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 
-export type MemberFormData = Omit<Member, 'id' | 'createdAt' | 'updatedAt' | 'isLocked' | 'lastModifiedBy'>;
+// Modified type to handle string dates in the form
+export type MemberFormData = Omit<Member, 'id' | 'createdAt' | 'updatedAt' | 'isLocked' | 'lastModifiedBy' | 'datePurchased'> & {
+  datePurchased: string | null;
+};
 
 interface MemberFormBaseProps {
   initialData?: Partial<MemberFormData>;
   onSubmit: (data: MemberFormData) => void;
   isSubmitting: boolean;
-  children?: React.ReactNode;
   formId?: string;
+  onFormChange?: () => void;
 }
 
-export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
+export interface MemberFormBaseRef {
+  submitForm: () => Promise<void>;
+}
+
+export const MemberFormBase = forwardRef<MemberFormBaseRef, MemberFormBaseProps>(({
   initialData = {},
   onSubmit,
   isSubmitting,
-  children,
-  formId
-}) => {
-  const { control, handleSubmit } = useForm<MemberFormData>({
+  formId,
+  onFormChange
+}, ref) => {
+  console.log('MemberFormBase rendering with initialData:', initialData);
+  
+  const { control, handleSubmit, formState } = useForm<MemberFormData>({
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -45,9 +54,30 @@ export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
     }
   });
 
+  console.log('Form state:', formState);
+
+  const wrappedSubmit = handleSubmit((data) => {
+    console.log('Form submit handler called with data:', data);
+    onSubmit(data);
+  }, (errors) => {
+    console.error('Form validation errors:', errors);
+  });
+
+  useImperativeHandle(ref, () => ({
+    submitForm: async () => {
+      console.log('submitForm called');
+      try {
+        await wrappedSubmit();
+        console.log('Submit completed');
+      } catch (error) {
+        console.error('Error in submit:', error);
+      }
+    }
+  }));
+
   const formFields = [
     { name: 'firstName', label: 'First Name', required: true },
-    { name: 'lastName', label: 'Last Name', required: true },
+    { name: 'lastName', label: 'Last Name' },
     { name: 'email', label: 'Email' },
     { name: 'homePhone', label: 'Home Phone' },
     { name: 'mobilePhone', label: 'Mobile Phone' },
@@ -64,8 +94,14 @@ export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
     { name: 'lastStateWorked', label: 'Last State Worked' }
   ];
 
+  const onFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form onSubmit triggered');
+    await wrappedSubmit();
+  };
+
   return (
-    <form id={formId} onSubmit={handleSubmit(onSubmit)}>
+    <form id={formId} onSubmit={onFormSubmit}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {formFields.map((field) => {
           const fieldId = field.name as keyof MemberFormData;
@@ -82,10 +118,15 @@ export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
                       return (
                         <Calendar
                           id={field.name}
-                          value={value instanceof Date ? value : value ? new Date(value) : null}
-                          onChange={(e) => onChange(e.value?.toISOString() || null)}
+                          value={value ? new Date(value) : null}
+                          onChange={(e) => {
+                            const date = e.value as Date | null;
+                            onChange(date ? date.toISOString().split('T')[0] : null);
+                            onFormChange?.();
+                          }}
                           disabled={isSubmitting}
                           className={`w-full ${hasError ? 'p-invalid' : ''}`}
+                          dateFormat="yy-mm-dd"
                         />
                       );
                     }
@@ -94,10 +135,12 @@ export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
                         <InputNumber
                           id={field.name}
                           value={typeof value === 'number' ? value : null}
-                          onValueChange={(e) => onChange(e.value)}
+                          onValueChange={(e) => {
+                            onChange(e.value);
+                            onFormChange?.();
+                          }}
                           disabled={isSubmitting}
                           className={`w-full ${hasError ? 'p-invalid' : ''}`}
-                          mode="decimal"
                           minFractionDigits={0}
                           maxFractionDigits={2}
                         />
@@ -107,7 +150,10 @@ export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
                       <InputText
                         id={field.name}
                         value={typeof value === 'string' ? value : ''}
-                        onChange={(e) => onChange(e.target.value)}
+                        onChange={(e) => {
+                          onChange(e.target.value);
+                          onFormChange?.();
+                        }}
                         disabled={isSubmitting}
                         className={`w-full ${hasError ? 'p-invalid' : ''}`}
                       />
@@ -133,7 +179,8 @@ export const MemberFormBase: React.FC<MemberFormBaseProps> = ({
           );
         })}
       </div>
-      {children}
     </form>
   );
-}; 
+});
+
+MemberFormBase.displayName = 'MemberFormBase'; 
