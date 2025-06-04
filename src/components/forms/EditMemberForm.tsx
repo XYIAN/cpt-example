@@ -124,6 +124,7 @@ export const EditMemberForm: React.FC<EditMemberFormProps> = ({
               type="button"
               label="Save Changes"
               icon="pi pi-check"
+              loading={isSubmitting}
               disabled={isSubmitting}
               severity="success"
             />
