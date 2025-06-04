@@ -1,35 +1,21 @@
+import { parse } from 'csv-parse';
 import fs from 'fs';
 import path from 'path';
-import { parse } from 'csv-parse';
-import { prisma } from '../src/lib/prisma';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { prisma } from '../src/lib/prisma.js';
 import {
   cleanRequiredString,
   cleanOptionalString,
   cleanNumber,
   cleanDate
-} from '../src/utils/dataCleaners';
+} from '../src/utils/dataCleaners.js';
 
-interface CsvRecord {
-  FirstName: string;
-  LastName: string;
-  Email?: string;
-  HomePhone?: string;
-  MobilePhone?: string;
-  Address1?: string;
-  Address2?: string;
-  City?: string;
-  State?: string;
-  Zip?: string;
-  Zip4?: string;
-  ProductName?: string;
-  DatePurchased?: string;
-  PaidAmount?: string;
-  CoveredWeeks?: string;
-  LastStateWorked?: string;
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-async function importCsvFile(filePath: string) {
-  const records: CsvRecord[] = [];
+async function importCsvFile(filePath) {
+  const records = [];
   const parser = fs
     .createReadStream(filePath)
     .pipe(parse({

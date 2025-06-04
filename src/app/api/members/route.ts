@@ -62,7 +62,9 @@ export async function POST(request: Request) {
       data: {
         ...validatedData,
         datePurchased: validatedData.datePurchased ? new Date(validatedData.datePurchased) : null,
-        // Version control fields are handled by schema defaults
+        version: 1,
+        isLocked: false,
+        lastModifiedBy: null
       },
     });
     return NextResponse.json(member);
