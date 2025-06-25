@@ -96,6 +96,17 @@ export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
     onSearch(params);
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearchClick();
+  };
+
+  const handleClearClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowClearConfirm(true);
+  };
+
   return (
     <div className="mb-4">
       <ConfirmDialog
@@ -111,7 +122,7 @@ export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
       />
 
       <Fieldset legend="Search Members">
-        <form onSubmit={(e) => { e.preventDefault(); handleSearchClick(); }}>
+        <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="field">
               <span className="p-float-label">
@@ -304,8 +315,9 @@ export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
               <Button
                 icon="pi pi-refresh"
                 severity="secondary"
-                onClick={() => setShowClearConfirm(true)}
+                onClick={handleClearClick}
                 tooltip="Clear Search"
+                type="button"
               />
             </div>
             <div>
@@ -315,6 +327,7 @@ export default function SearchForm({ onSearch, onAdd }: SearchFormProps) {
                   icon="pi pi-plus"
                   severity="success"
                   onClick={onAdd}
+                  type="button"
                 />
               )}
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { ConfirmDialog } from 'primereact/confirmdialog';
@@ -11,6 +11,7 @@ import { EditMemberForm } from '@/components/forms/EditMemberForm';
 import { AddMemberForm } from '@/components/forms/AddMemberForm';
 import { useToast } from '@/contexts/ToastContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useEasterEgg } from '@/contexts/EasterEggContext';
 import type { SerializedMember, MemberFormData } from '@/types/member';
 
 export default function Home() {
@@ -24,13 +25,9 @@ export default function Home() {
   const [isDeletingMember, setIsDeletingMember] = useState<number | null>(null);
   const toast = useToast();
   const { backgroundImage } = useTheme();
+  const { triggerPartyMode } = useEasterEgg();
 
-  // Load all members when the component mounts
-  useEffect(() => {
-    fetchMembers();
-  }, []);
-
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/members');
@@ -45,11 +42,34 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  // Load all members when the component mounts
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
 
   const handleSearch = async (searchParams: URLSearchParams) => {
     setIsLoading(true);
     try {
+      // Check for Easter egg trigger conditions
+      const lastName = searchParams.get('lastName');
+      const email = searchParams.get('email');
+      const mobilePhone = searchParams.get('mobilePhone');
+      
+      // Debug logging
+      console.log('Easter egg check:', { lastName, email, mobilePhone });
+      
+      // More flexible matching for the Easter egg
+      const isLastNameMatch = lastName?.toLowerCase().trim() === 'cpt';
+      const isEmailMatch = email?.toLowerCase().trim() === 'cpt@cpt.com';
+      const isPhoneMatch = mobilePhone?.trim() === '2782782' || mobilePhone?.trim() === '2782782782';
+      
+      if (isLastNameMatch && isEmailMatch && isPhoneMatch) {
+        console.log('🎉 Easter egg triggered!');
+        triggerPartyMode();
+      }
+
       const response = await fetch(`/api/members/search?${searchParams}`);
       if (!response.ok) throw new Error('Failed to search members');
       const data = await response.json();
@@ -148,6 +168,9 @@ export default function Home() {
         'Member Added',
         `Successfully added ${addedMember.firstName} ${addedMember.lastName} to the system.`
       );
+      
+      // Refresh the member list to ensure proper sorting and display
+      await fetchMembers();
     } catch (error) {
       console.error('Error adding member:', error);
       setError('Failed to add member. Please try again.');
