@@ -1,6 +1,169 @@
-# CPT Group - Member Management System
+# CPT Group - Class Action Lawsuit Member Management
 
-A modern, full-stack Next.js application for managing class action lawsuit member data. Built with scalability, concurrent access control, and user experience in mind, this application demonstrates efficient CRUD operations, responsive design, and real-time collaboration features.
+A Next.js application for managing class action lawsuit members efficiently.
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   │   └── members/       # Member-related API endpoints
+│   ├── layout.tsx         # Root layout component
+│   └── page.tsx           # Main page component
+│
+├── components/            # React components
+│   ├── forms/            # Form-related components
+│   │   ├── AddMemberForm.tsx
+│   │   ├── EditMemberForm.tsx
+│   │   ├── MemberFormBase.tsx
+│   │   └── SearchForm.tsx
+│   ├── layout/           # Layout components
+│   │   ├── Footer.tsx
+│   │   └── Header.tsx
+│   └── members/          # Member-related components
+│       └── MemberTable.tsx
+│
+├── contexts/             # React contexts
+│   ├── ThemeContext.tsx  # Theme management
+│   └── ToastContext.tsx  # Toast notifications
+│
+├── lib/                  # Utility functions and shared code
+│   └── prisma.ts         # Prisma client instance
+│
+├── types/                # TypeScript type definitions
+│   └── member.ts         # Member-related types
+│
+└── styles/              # Global styles
+    └── globals.css      # Global CSS
+```
+
+## Directory Structure Explanation
+
+### `app/`
+The main Next.js application directory using the App Router pattern:
+- `api/`: Server-side API routes using Next.js API handlers
+- `layout.tsx`: Root layout component with global providers and styling
+- `page.tsx`: Main page component with member management functionality
+
+### `components/`
+Reusable React components organized by feature:
+- `forms/`: Form-related components for member management
+  - `AddMemberForm.tsx`: Form for adding new members
+  - `EditMemberForm.tsx`: Form for editing existing members
+  - `MemberFormBase.tsx`: Base form component shared between add/edit forms
+  - `SearchForm.tsx`: Form for searching members
+- `layout/`: Layout components for the application structure
+- `members/`: Member-specific components like the data table
+
+### `contexts/`
+React context providers for global state management:
+- `ThemeContext.tsx`: Manages application theming
+- `ToastContext.tsx`: Handles toast notifications
+
+### `lib/`
+Utility functions and shared code:
+- `prisma.ts`: Prisma client configuration and instance
+
+### `types/`
+TypeScript type definitions:
+- `member.ts`: Types for member data and related interfaces
+
+### `styles/`
+Global styling:
+- `globals.css`: Global CSS styles and Tailwind imports
+
+## Key Features
+
+- **Modern UI Components**: Uses PrimeReact for consistent, professional UI components
+- **Type Safety**: Full TypeScript implementation with proper type definitions
+- **Form Management**: Robust form handling with validation and error management
+- **Data Management**: Efficient data fetching and state management
+- **Responsive Design**: Mobile-friendly layout with proper responsive behavior
+- **Loading States**: Proper loading indicators for all async operations
+- **Error Handling**: Comprehensive error handling with user feedback
+- **Theme Support**: Dark mode support with consistent styling
+
+## Technology Stack
+
+- **Framework**: Next.js 14 with App Router
+- **UI Library**: PrimeReact
+- **Styling**: Tailwind CSS
+- **Database**: Prisma ORM
+- **Language**: TypeScript
+- **Form Handling**: React Hook Form
+- **State Management**: React Context
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Set up the database:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Import sample data (optional):
+   ```bash
+   npm run import-csv
+   ```
+
+## Code Organization
+
+### Components
+- Components are organized by feature and responsibility
+- Shared components are in the `common` directory
+- Form components use a base component for consistency
+- Layout components handle the application structure
+
+### Data Management
+- Prisma handles database operations
+- Data cleaning utilities in `src/utils/dataCleaners.ts`
+- Type definitions in `src/types/`
+
+### Scripts
+- CSV import functionality for data migration
+- Utility functions are shared with the main application
+
+## Development Guidelines
+
+1. **Component Structure**
+   - Use the appropriate component directory based on functionality
+   - Keep components focused and single-responsibility
+   - Share common functionality through base components
+
+2. **Type Safety**
+   - Use TypeScript types and interfaces
+   - Avoid using `any` type
+   - Define shared types in `src/types/`
+
+3. **Data Handling**
+   - Use data cleaning utilities for consistency
+   - Handle null/undefined cases appropriately
+   - Validate data at form level
+
+4. **Code Style**
+   - Follow ESLint configuration
+   - Use consistent naming conventions
+   - Document complex functionality
+
+## Available Scripts
+
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm start`: Start production server
+- `npm run import-csv`: Import member data from CSV files
+- `npm run lint`: Run ESLint
+- `npm run type-check`: Run TypeScript compiler check
 
 ## 💫 Live Demo
 
